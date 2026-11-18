@@ -22,9 +22,9 @@ A Progressive Web Application (PWA) built for **Saint Louis University (SLU)** t
 | Layer | Technologies |
 | :--- | :--- |
 | **Frontend** | React, Vite (PWA), TanStack Query, React Router, `html5-qrcode`, Recharts |
-| **Backend** | Python 3.13, FastAPI, SQLAlchemy 2.0, Alembic, Pydantic, `google-auth`, `openpyxl`, `reportlab`, `qrcode`[cite: 1] |
-| **Database** | PostgreSQL 18[cite: 1] |
-| **Infrastructure** | Docker, Docker Compose, Caddy (Reverse Proxy & Automatic HTTPS), GitHub Actions CI/CD[cite: 1] |
+| **Backend** | Python 3.13, FastAPI, SQLAlchemy 2.0, Alembic, Pydantic, `google-auth`, `openpyxl`, `reportlab`, `qrcode` |
+| **Database** | PostgreSQL 18 |
+| **Infrastructure** | Docker, Docker Compose, Caddy (Reverse Proxy & Automatic HTTPS), GitHub Actions CI/CD |
 
 ---
 
