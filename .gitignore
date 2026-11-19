@@ -221,3 +221,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Node / Frontend (React + Vite PWA)
+node_modules/
+frontend/dist/
+.vite/
+*.local
+.DS_Store
+Thumbs.db
