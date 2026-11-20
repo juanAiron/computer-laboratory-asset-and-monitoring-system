@@ -37,6 +37,7 @@ class Asset(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(150), nullable=False)
     brand_model: Mapped[str | None] = mapped_column(String(150), nullable=True)
     specs: Mapped[str | None] = mapped_column(Text, nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
     lab_room_id: Mapped[int | None] = mapped_column(ForeignKey("lab_rooms.id"), nullable=True)
