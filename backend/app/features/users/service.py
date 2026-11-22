@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from fastapi import HTTPException, status
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
+from app.core.security import hash_password
 
 from app.core.config import settings
 from app.features.users.models import User, UserRole
