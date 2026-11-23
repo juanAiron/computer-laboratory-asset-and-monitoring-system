@@ -1,7 +1,51 @@
 @import "tailwindcss";
 
+/* Local Custom Fonts (place .woff2 or .ttf files inside frontend/public/fonts/) */
+@font-face {
+  font-family: "Lovelo";
+  src:
+    url("/fonts/Lovelo-Black.woff2") format("woff2"),
+    url("/fonts/Lovelo-Black.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lovera";
+  src:
+    url("/fonts/Lovera.woff2") format("woff2"),
+    url("/fonts/Lovera.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  /* Custom Color Palette */
+  --color-evergreen: #132a13;
+  --color-hunter-green: #31572c;
+  --color-fern: #4f772d;
+  --color-palm-leaf: #90a955;
+  --color-lime-cream: #ecf39e;
+  --color-cream: #f5f7bf;
+  --color-cornsilk: #fefae0;
+
+  /* Custom Font Families (exposes font-sans, font-display, font-editorial, font-condensed) */
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Lovelo", "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-editorial: "Lovera", Georgia, serif;
+  --font-condensed: "League Gothic", Impact, sans-serif;
+}
+
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    @apply bg-cornsilk/40 font-sans text-evergreen antialiased;
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
   }
 }

@@ -37,14 +37,14 @@ export function Sidebar() {
   const visibleItems = NAV_ITEMS.filter((item) => item.roles.includes(user?.role))
 
   return (
-    <aside className="hidden w-64 flex-col bg-slate-900 text-slate-100 md:flex">
-      <div className="flex items-center gap-3 border-b border-slate-800 px-5 py-4">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500 font-bold text-slate-950">
+    <aside className="hidden w-64 flex-col bg-evergreen text-cornsilk md:flex">
+      <div className="flex items-center gap-3 border-b border-hunter-green/60 px-5 py-4">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-lime-cream font-bold text-evergreen">
           SLU
         </div>
         <div>
-          <p className="text-sm font-bold leading-tight">Lab Monitoring</p>
-          <p className="text-xs text-slate-400">TRIL &amp; CIS Inventory</p>
+          <p className="text-sm font-bold leading-tight text-cornsilk">Lab Monitoring</p>
+          <p className="text-xs text-palm-leaf">TRIL &amp; CIS Inventory</p>
         </div>
       </div>
 
@@ -57,23 +57,23 @@ export function Sidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                 isActive
-                  ? 'bg-blue-700 text-white'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-fern text-cornsilk shadow-sm'
+                  : 'text-cream/80 hover:bg-hunter-green/60 hover:text-cornsilk'
               }`
             }
           >
-            <Icon className="h-4 w-4 shrink-0" />
+            <Icon className="h-4 w-4 shrink-0 text-lime-cream" />
             <span>{label}</span>
           </NavLink>
         ))}
       </nav>
 
-      <div className="border-t border-slate-800 p-4">
-        <p className="truncate text-sm font-semibold text-white">{user?.full_name}</p>
-        <p className="text-xs text-amber-400">{ROLE_LABELS[user?.role] || user?.role}</p>
+      <div className="border-t border-hunter-green/60 p-4">
+        <p className="truncate text-sm font-semibold text-cornsilk">{user?.full_name}</p>
+        <p className="text-xs text-lime-cream">{ROLE_LABELS[user?.role] || user?.role}</p>
         <button
           onClick={logout}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-slate-800 py-2 text-xs font-semibold text-slate-200 hover:bg-red-600 hover:text-white"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-hunter-green py-2 text-xs font-semibold text-cornsilk transition-colors hover:bg-red-700"
         >
           <LogOut className="h-3.5 w-3.5" />
           Sign Out

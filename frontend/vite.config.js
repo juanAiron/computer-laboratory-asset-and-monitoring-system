@@ -9,22 +9,25 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,woff,ttf}'],
+      },
       manifest: {
         name: 'SLU Computer Lab Monitoring & Asset System',
         short_name: 'SLU LabSys',
         description: 'Saint Louis University Computer Laboratory Asset & Session Monitoring',
-        theme_color: '#0f172a',
-        background_color: '#f8fafc',
+        theme_color: '#132a13',
+        background_color: '#fefae0',
         display: 'standalone',
         start_url: '/',
         icons: [
           {
-            src: '/pwa-192x192.png',
+            src: '/icons/icon-192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/pwa-512x512.png',
+            src: '/icons/icon-512.png',
             sizes: '512x512',
             type: 'image/png',
           },
