@@ -29,11 +29,12 @@
   --color-palm-leaf: #90a955;
   --color-lime-cream: #ecf39e;
   --color-cream: #f5f7bf;
-  --color-cornsilk: #fefae0;
+  --color-cornsilk: #f0ead2;
 
-  /* Custom Font Families (exposes font-sans, font-display, font-editorial, font-condensed) */
+  /* Custom Font Families */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Lovelo", "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Lovelo", "Montserrat", "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-montserrat: "Montserrat", "Poppins", ui-sans-serif, system-ui, sans-serif;
   --font-editorial: "Lovera", Georgia, serif;
   --font-condensed: "League Gothic", Impact, sans-serif;
 }
@@ -47,5 +48,26 @@
   h2 {
     font-family: var(--font-display);
     letter-spacing: 0.02em;
+  }
+}
+
+/* Reserved strictly for "Saint Louis University" or "SLU" brand marks */
+.font-slu-brand {
+  font-family: "Libre Baskerville", Georgia, serif;
+  letter-spacing: 0.01em;
+}
+
+.login-mode-enter {
+  animation: login-mode-fade 220ms ease-out;
+}
+
+@keyframes login-mode-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

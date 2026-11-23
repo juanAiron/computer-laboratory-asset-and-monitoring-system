@@ -42,6 +42,7 @@ def create_user(db: Session, payload: UserCreate, actor: User) -> User:
         full_name=payload.full_name.strip(),
         course_year=payload.course_year.strip() if payload.course_year else None,
         role=payload.role,
+        password_hash=hash_password(payload.password) if payload.password else None,
         is_active=True,
     )
     db.add(user)

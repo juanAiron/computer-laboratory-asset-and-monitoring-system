@@ -66,3 +66,14 @@ def decode_token(token: str) -> dict[str, Any]:
         return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
     except JWTError as exc:
         raise ValueError("Invalid or expired token") from exc
+
+
+def create_password_reset_token(user_id: int, token_version: int) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=30)
+    payload = {
+        "sub": str(user_id),
+        "tv": token_version,
+        "type": "password_reset",
+        "exp": expire,
+    }
+    return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)

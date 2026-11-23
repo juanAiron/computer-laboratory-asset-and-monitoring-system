@@ -34,7 +34,9 @@ export const NAV_ITEMS = [
 
 export function Sidebar() {
   const { user, logout } = useAuth()
-  const visibleItems = NAV_ITEMS.filter((item) => item.roles.includes(user?.role))
+  const visibleItems = NAV_ITEMS.filter(
+    (item) => user?.role === ROLES.SUPER_ADMIN || item.roles.includes(user?.role),
+  )
 
   return (
     <aside className="hidden w-64 flex-col bg-evergreen text-cornsilk md:flex">

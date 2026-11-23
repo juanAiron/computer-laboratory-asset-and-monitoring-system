@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.permissions import require_role
@@ -26,6 +26,8 @@ def create_user(
     current_user: User = Depends(require_role(UserRole.TRIL_ADMIN, UserRole.DEPT_HEAD)),
     db: Session = Depends(get_db),
 ):
+    if payload.role == UserRole.SUPER_ADMIN and current_user.role != UserRole.SUPER_ADMIN:
+        raise HTTPException(status_code=403, detail="Only Super Administrators can create Super Administrators")
     return service.create_user(db, payload, current_user)
 
 
@@ -36,6 +38,8 @@ def update_user(
     current_user: User = Depends(require_role(UserRole.TRIL_ADMIN, UserRole.DEPT_HEAD)),
     db: Session = Depends(get_db),
 ):
+    if payload.role == UserRole.SUPER_ADMIN and current_user.role != UserRole.SUPER_ADMIN:
+        raise HTTPException(status_code=403, detail="Only Super Administrators can assign Super Administrator")
     return service.update_user(db, user_id, payload, current_user)
 
 

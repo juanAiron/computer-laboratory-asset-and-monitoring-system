@@ -13,8 +13,17 @@ class Settings(BaseSettings):
 
     SEED_ADMIN_EMAIL: str
     SEED_ADMIN_PASSWORD: str
+    SUPER_ADMIN_EMAIL: str
+    SUPER_ADMIN_PASSWORD: str
 
     FRONTEND_ORIGIN: str = "http://localhost:5173"
+
+    SMTP_HOST: str | None = None
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: str | None = None
+    SMTP_PASSWORD: str | None = None
+    SMTP_FROM_EMAIL: str | None = None
+    SMTP_USE_TLS: bool = True
 
     model_config = SettingsConfigDict(
         env_file="../.env",

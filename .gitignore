@@ -229,3 +229,5 @@ frontend/dist/
 *.local
 .DS_Store
 Thumbs.db
+
+backend/uploads/

@@ -3,6 +3,7 @@ import { AppShell } from './components/layout/AppShell'
 import { LoginPage } from './features/auth/LoginPage'
 import { ProtectedRoute } from './features/auth/ProtectedRoute'
 import { DashboardPage } from './features/dashboard/DashboardPage'
+import { UsersManagePage } from './features/users/UsersManagePage'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
             <Route path="/" element={<DashboardPage />} />
+            <Route path="/users" element={<UsersManagePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Route>

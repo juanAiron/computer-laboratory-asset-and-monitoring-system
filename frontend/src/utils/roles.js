@@ -1,4 +1,5 @@
 export const ROLES = {
+  SUPER_ADMIN: 'super_admin',
   TRIL_ADMIN: 'tril_admin',
   DEPT_HEAD: 'dept_head',
   CUSTODIAN: 'custodian',
@@ -7,6 +8,7 @@ export const ROLES = {
 }
 
 export const ROLE_LABELS = {
+  super_admin: 'Super Administrator',
   tril_admin: 'TRIL Coordinator',
   dept_head: 'Department Head',
   custodian: 'Lab Custodian',

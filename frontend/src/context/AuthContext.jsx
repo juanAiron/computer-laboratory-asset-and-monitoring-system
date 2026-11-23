@@ -12,7 +12,9 @@ export function AuthProvider({ children }) {
     let active = true
     async function restoreSession() {
       try {
-        const { data } = await api.post('/auth/refresh')
+        const response = await api.post('/auth/refresh')
+        if (response.status === 204) return
+        const { data } = response
         if (active) {
           setAccessToken(data.access_token)
           setUser(data.user)
@@ -39,11 +41,37 @@ export function AuthProvider({ children }) {
     return data.user
   }, [])
 
-  const loginLocal = useCallback(async (email, password) => {
-    const { data } = await api.post('/auth/local', { email, password })
+  const loginLocal = useCallback(async (identifier, password) => {
+    const { data } = await api.post('/auth/local', { identifier, password })
     setAccessToken(data.access_token)
     setUser(data.user)
     return data.user
+  }, [])
+
+  const signupLocal = useCallback(async (idNumber, password, confirmPassword, fullName) => {
+    const { data } = await api.post('/auth/signup', {
+      id_number: idNumber,
+      password,
+      full_name: fullName,
+      confirm_password: confirmPassword,
+    })
+    setAccessToken(data.access_token)
+    setUser(data.user)
+    return data.user
+  }, [])
+
+  const forgotPassword = useCallback(async (email) => {
+    const { data } = await api.post('/auth/forgot-password', { email })
+    return data.detail
+  }, [])
+
+  const resetPassword = useCallback(async (token, password, confirmPassword) => {
+    const { data } = await api.post('/auth/reset-password', {
+      token,
+      password,
+      confirm_password: confirmPassword,
+    })
+    return data.detail
   }, [])
 
   const logout = useCallback(async () => {
@@ -56,7 +84,9 @@ export function AuthProvider({ children }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithGoogle, loginLocal, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, loginWithGoogle, loginLocal, signupLocal, forgotPassword, resetPassword, logout }}
+    >
       {children}
     </AuthContext.Provider>
   )

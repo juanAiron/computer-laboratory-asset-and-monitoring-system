@@ -7,6 +7,7 @@ from app.shared.audit import Base, TimestampMixin
 
 
 class UserRole(str, enum.Enum):
+    SUPER_ADMIN = "super_admin"
     TRIL_ADMIN = "tril_admin"
     DEPT_HEAD = "dept_head"
     CUSTODIAN = "custodian"
