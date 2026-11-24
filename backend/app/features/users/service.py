@@ -1,14 +1,19 @@
 import csv
 import io
+import re
 from datetime import datetime, timezone
+from pathlib import Path
+import shutil
+import uuid
 from fastapi import HTTPException, status
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
-from app.core.security import hash_password
+from fastapi import UploadFile
+from app.core.security import hash_password, verify_password
 
 from app.core.config import settings
 from app.features.users.models import User, UserRole
-from app.features.users.schemas import CSVImportResult, UserCreate, UserUpdate
+from app.features.users.schemas import CSVImportResult, PasswordChange, ProfileUpdate, UserCreate, UserUpdate
 from app.shared.audit import AuditLog
 
 
@@ -91,6 +96,69 @@ def update_user(db: Session, user_id: int, payload: UserUpdate, actor: User) -> 
             details=f"Updated user {user.email}",
         )
     )
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def update_profile(db: Session, user: User, payload: ProfileUpdate) -> User:
+    full_name = " ".join(payload.full_name.strip().split())
+    if len(full_name) < 2:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Display name is too short")
+    user.full_name = full_name
+    if user.role != UserRole.STUDENT:
+        user.course_year = payload.course_year.strip() if payload.course_year else None
+        user.department = payload.department.strip() if payload.department else None
+        user.office = payload.office.strip() if payload.office else None
+    if payload.profile_visibility in {"private", "members", "public"}:
+        user.profile_visibility = payload.profile_visibility
+    if payload.activity_visibility in {"private", "members"}:
+        user.activity_visibility = payload.activity_visibility
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def change_password(db: Session, user: User, payload: PasswordChange) -> None:
+    if not user.password_hash or not verify_password(payload.current_password, user.password_hash):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Current password is incorrect")
+    if payload.new_password != payload.confirm_password:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Passwords do not match")
+    password = payload.new_password
+    if (
+        len(password) < 10
+        or not re.search(r"[A-Z]", password)
+        or not re.search(r"[a-z]", password)
+        or not re.search(r"\d", password)
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Password must be 10+ characters with uppercase, lowercase, and a number",
+        )
+    user.password_hash = hash_password(payload.new_password)
+    user.token_version += 1
+    db.commit()
+
+
+async def upload_profile_photo(db: Session, user: User, file: UploadFile) -> User:
+    if file.content_type not in {"image/jpeg", "image/png", "image/webp"}:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only JPG, PNG, and WebP images are allowed")
+
+    upload_dir = Path("uploads/profiles")
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    extension = Path(file.filename or "").suffix.lower() or ".jpg"
+    filename = f"{user.id}-{uuid.uuid4().hex}{extension}"
+    destination = upload_dir / filename
+
+    with destination.open("wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    if user.profile_photo_url:
+        old_path = Path(user.profile_photo_url.lstrip("/"))
+        if old_path.exists():
+            old_path.unlink()
+
+    user.profile_photo_url = f"/uploads/profiles/{filename}"
     db.commit()
     db.refresh(user)
     return user

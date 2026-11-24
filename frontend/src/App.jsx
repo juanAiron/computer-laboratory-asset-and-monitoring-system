@@ -4,6 +4,7 @@ import { LoginPage } from './features/auth/LoginPage'
 import { ProtectedRoute } from './features/auth/ProtectedRoute'
 import { DashboardPage } from './features/dashboard/DashboardPage'
 import { UsersManagePage } from './features/users/UsersManagePage'
+import { ProfilePage } from './features/profile/ProfilePage'
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route element={<AppShell />}>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/users" element={<UsersManagePage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Route>

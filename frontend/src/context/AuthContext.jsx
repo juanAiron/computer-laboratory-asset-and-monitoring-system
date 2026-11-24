@@ -74,6 +74,22 @@ export function AuthProvider({ children }) {
     return data.detail
   }, [])
 
+  const updateProfile = useCallback(async (payload) => {
+    const { data } = await api.patch('/users/me', payload)
+    setUser((current) => ({ ...current, ...data }))
+    return data
+  }, [])
+
+  const updateProfilePhoto = useCallback(async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const { data } = await api.post('/users/me/photo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    setUser((current) => ({ ...current, ...data }))
+    return data
+  }, [])
+
   const logout = useCallback(async () => {
     try {
       await api.post('/auth/logout')
@@ -85,7 +101,18 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, loginWithGoogle, loginLocal, signupLocal, forgotPassword, resetPassword, logout }}
+      value={{
+        user,
+        loading,
+        loginWithGoogle,
+        loginLocal,
+        signupLocal,
+        forgotPassword,
+        resetPassword,
+        updateProfile,
+        updateProfilePhoto,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

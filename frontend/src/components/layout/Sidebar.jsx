@@ -4,7 +4,6 @@ import {
   FileSpreadsheet,
   HandHelping,
   LayoutDashboard,
-  LogOut,
   Monitor,
   Package,
   QrCode,
@@ -14,16 +13,16 @@ import {
   Wrench,
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
-import { ROLE_LABELS, ROLES } from '../../utils/roles'
+import { ROLES } from '../../utils/roles'
 
 export const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, roles: Object.values(ROLES) },
   { to: '/check-in', label: 'PC Check-In', icon: QrCode, roles: [ROLES.STUDENT, ROLES.INSTRUCTOR, ROLES.CUSTODIAN, ROLES.TRIL_ADMIN] },
   { to: '/labs', label: 'Computer Labs', icon: Monitor, roles: Object.values(ROLES) },
-  { to: '/sessions', label: 'Class Sessions', icon: ClipboardCheck, roles: [ROLES.INSTRUCTOR, ROLES.CUSTODIAN, ROLES.TRIL_ADMIN] },
+  { to: '/sessions', label: 'Lab Schedules', icon: ClipboardCheck, roles: [ROLES.INSTRUCTOR, ROLES.CUSTODIAN, ROLES.TRIL_ADMIN] },
   { to: '/scan', label: 'Quick Scan', icon: ScanLine, roles: [ROLES.CUSTODIAN, ROLES.TRIL_ADMIN] },
   { to: '/assets', label: 'Hardware Assets', icon: Server, roles: [ROLES.TRIL_ADMIN, ROLES.DEPT_HEAD, ROLES.CUSTODIAN] },
-  { to: '/loans', label: 'Equipment Loans', icon: HandHelping, roles: [ROLES.TRIL_ADMIN, ROLES.DEPT_HEAD, ROLES.CUSTODIAN] },
+  { to: '/loans', label: 'Borrowed', icon: HandHelping, roles: [ROLES.TRIL_ADMIN, ROLES.DEPT_HEAD, ROLES.CUSTODIAN] },
   { to: '/my-loans', label: 'My Borrowed Items', icon: HandHelping, roles: [ROLES.STUDENT, ROLES.INSTRUCTOR] },
   { to: '/consumables', label: 'Consumables', icon: Package, roles: [ROLES.TRIL_ADMIN, ROLES.DEPT_HEAD, ROLES.CUSTODIAN] },
   { to: '/repairs', label: 'Repair Tickets', icon: Wrench, roles: Object.values(ROLES) },
@@ -33,20 +32,17 @@ export const NAV_ITEMS = [
 ]
 
 export function Sidebar() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const visibleItems = NAV_ITEMS.filter(
     (item) => user?.role === ROLES.SUPER_ADMIN || item.roles.includes(user?.role),
   )
 
   return (
-    <aside className="hidden w-64 flex-col bg-evergreen text-cornsilk md:flex">
-      <div className="flex items-center gap-3 border-b border-hunter-green/60 px-5 py-4">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-lime-cream font-bold text-evergreen">
-          SLU
-        </div>
-        <div>
-          <p className="text-sm font-bold leading-tight text-cornsilk">Lab Monitoring</p>
-          <p className="text-xs text-palm-leaf">TRIL &amp; CIS Inventory</p>
+    <aside className="hidden w-64 shrink-0 flex-col bg-evergreen text-cornsilk md:flex">
+      <div className="border-b border-hunter-green/60 px-5 py-4">
+        <div className="w-full leading-tight">
+          <p className="whitespace-nowrap text-center font-display text-[21px] font-bold uppercase leading-none text-cornsilk">CIS TRIL PORTAL</p>
+          <p className="mt-1.5 text-center font-montserrat text-[9px] font-medium uppercase tracking-wide text-lime-cream">Asset Management System</p>
         </div>
       </div>
 
@@ -69,18 +65,6 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
-
-      <div className="border-t border-hunter-green/60 p-4">
-        <p className="truncate text-sm font-semibold text-cornsilk">{user?.full_name}</p>
-        <p className="text-xs text-lime-cream">{ROLE_LABELS[user?.role] || user?.role}</p>
-        <button
-          onClick={logout}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-hunter-green py-2 text-xs font-semibold text-cornsilk transition-colors hover:bg-red-700"
-        >
-          <LogOut className="h-3.5 w-3.5" />
-          Sign Out
-        </button>
-      </div>
     </aside>
   )
 }

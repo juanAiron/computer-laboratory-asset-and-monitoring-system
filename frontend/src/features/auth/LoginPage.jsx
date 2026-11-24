@@ -280,7 +280,7 @@ export function LoginPage() {
       <div className="relative z-10 flex min-h-screen min-h-[100dvh] w-full items-start justify-center overflow-y-auto bg-cornsilk px-5 pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(2rem+env(safe-area-inset-bottom))] sm:px-10 sm:pt-12 md:w-[42%] md:px-8 md:pt-12 lg:px-12 lg:pt-16 xl:w-[40%] xl:px-16 xl:pt-20">
         <div className="pointer-events-none absolute inset-0" style={FORM_GRAIN_STYLE} aria-hidden="true" />
         <div className="relative z-10 w-full max-w-[25rem] sm:max-w-md">
-          <div className="mb-8 w-full sm:mb-10 lg:mb-12">
+          <div className="mb-16 w-full sm:mb-18 lg:mb-22">
             <p className="font-slu-brand text-sm font-normal uppercase leading-tight text-evergreen sm:text-base lg:text-lg xl:text-xl">
               Saint Louis University
             </p>
@@ -361,6 +361,7 @@ export function LoginPage() {
                           setPassword(e.target.value)
                           setFieldErrors((current) => ({ ...current, password: undefined }))
                         }}
+                         placeholder="Password"
                         className="mt-1 w-full rounded-lg border border-palm-leaf/50 bg-white px-3 py-2 pr-10 text-sm text-evergreen focus:border-fern focus:outline-none"
                       />
                       <button
@@ -381,6 +382,7 @@ export function LoginPage() {
                         required
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirm password"
                         className="mt-1 w-full rounded-lg border border-palm-leaf/50 bg-white px-3 py-2 pr-10 text-sm text-evergreen focus:border-fern focus:outline-none"
                       />
                       <button
@@ -536,6 +538,7 @@ export function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
                   aria-invalid={Boolean(fieldErrors.password)}
                   className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 pr-10 text-sm text-evergreen focus:outline-none ${
                     fieldErrors.password
@@ -565,6 +568,7 @@ export function LoginPage() {
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm Password"
                     aria-invalid={Boolean(fieldErrors.confirmPassword)}
                     className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 pr-10 text-sm text-evergreen focus:outline-none ${
                       fieldErrors.confirmPassword

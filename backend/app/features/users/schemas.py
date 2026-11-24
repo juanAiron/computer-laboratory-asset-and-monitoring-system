@@ -36,12 +36,32 @@ class UserUpdate(BaseModel):
     is_active: bool | None = None
 
 
+class ProfileUpdate(BaseModel):
+    full_name: str
+    course_year: str | None = None
+    department: str | None = None
+    office: str | None = None
+    profile_visibility: str | None = None
+    activity_visibility: str | None = None
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
+
+
 class UserResponse(BaseModel):
     id: int
     id_number: str | None
     email: str
     full_name: str
     course_year: str | None
+    profile_photo_url: str | None
+    department: str | None
+    office: str | None
+    profile_visibility: str
+    activity_visibility: str
     role: UserRole
     is_active: bool
     created_at: datetime

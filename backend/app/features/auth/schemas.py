@@ -103,6 +103,12 @@ class UserSummary(BaseModel):
     id_number: str | None
     email: str
     full_name: str
+    course_year: str | None
+    profile_photo_url: str | None
+    department: str | None
+    office: str | None
+    profile_visibility: str
+    activity_visibility: str
     role: UserRole
 
     model_config = {"from_attributes": True}

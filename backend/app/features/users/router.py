@@ -2,12 +2,46 @@ from fastapi import APIRouter, Depends, File, UploadFile, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.permissions import require_role
+from app.core.permissions import get_current_user
 from app.db.session import get_db
 from app.features.users import service
 from app.features.users.models import User, UserRole
-from app.features.users.schemas import CSVImportResult, UserCreate, UserResponse, UserUpdate
+from app.features.users.schemas import CSVImportResult, PasswordChange, ProfileUpdate, UserCreate, UserResponse, UserUpdate
 
 router = APIRouter(prefix="/users", tags=["Users"])
+
+
+@router.get("/me", response_model=UserResponse)
+def get_profile(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.patch("/me", response_model=UserResponse)
+def update_profile(
+    payload: ProfileUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return service.update_profile(db, current_user, payload)
+
+
+@router.post("/me/password")
+def change_password(
+    payload: PasswordChange,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service.change_password(db, current_user, payload)
+    return {"detail": "Password changed successfully"}
+
+
+@router.post("/me/photo", response_model=UserResponse)
+async def upload_profile_photo(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return await service.upload_profile_photo(db, current_user, file)
 
 
 @router.get("", response_model=list[UserResponse])

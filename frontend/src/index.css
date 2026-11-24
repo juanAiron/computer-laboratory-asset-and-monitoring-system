@@ -71,3 +71,90 @@
     transform: translateY(0);
   }
 }
+
+:root[data-theme="dark"] body {
+  background: #132a13;
+  color: #f0ead2;
+}
+
+:root[data-theme="dark"] .bg-cornsilk\/40,
+:root[data-theme="dark"] .bg-cornsilk {
+  background-color: #132a13;
+}
+
+:root[data-theme="dark"] .bg-white {
+  background-color: #1a2a1f;
+}
+
+:root[data-theme="dark"] .bg-cornsilk\/50,
+:root[data-theme="dark"] .bg-cornsilk\/60 {
+  background-color: #24362b;
+}
+
+:root[data-theme="dark"] .text-evergreen {
+  color: #f0ead2;
+}
+
+:root[data-theme="dark"] .text-hunter-green,
+:root[data-theme="dark"] .text-evergreen\/80 {
+  color: #c7d4c8;
+}
+
+:root[data-theme="dark"] .text-fern {
+  color: #a8c96a;
+}
+
+:root[data-theme="dark"] .border-palm-leaf\/30,
+:root[data-theme="dark"] .border-palm-leaf\/50,
+:root[data-theme="dark"] .border-hunter-green\/60 {
+  border-color: #3c5544;
+}
+
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea {
+  color: #f0ead2;
+  background-color: #1a2a1f;
+  color-scheme: dark;
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+  color: #91a496;
+}
+
+:root[data-theme="dark"] input:disabled,
+:root[data-theme="dark"] select:disabled,
+:root[data-theme="dark"] textarea:disabled {
+  background-color: #24362b;
+  color: #9aa89d;
+}
+
+:root[data-theme="dark"] option {
+  background-color: #1a2a1f;
+  color: #f0ead2;
+}
+
+:root[data-theme="dark"] .hover\:bg-cornsilk\/60:hover {
+  background-color: #24362b;
+}
+
+:root[data-theme="dark"] aside.bg-evergreen {
+  background-color: #07110b;
+  border-right: 1px solid #36513f;
+  box-shadow: 8px 0 24px rgb(0 0 0 / 28%);
+}
+
+:root[data-theme="dark"] aside.bg-evergreen nav {
+  border-top: 1px solid rgb(144 169 85 / 12%);
+}
+
+:root[data-theme="dark"] aside.bg-evergreen nav a {
+  border: 1px solid transparent;
+}
+
+:root[data-theme="dark"] aside.bg-evergreen nav a[class*="bg-fern"] {
+  background-color: #4f772d;
+  border-color: #90a955;
+  box-shadow: inset 3px 0 0 #ecf39e, 0 6px 14px rgb(0 0 0 / 20%);
+}
