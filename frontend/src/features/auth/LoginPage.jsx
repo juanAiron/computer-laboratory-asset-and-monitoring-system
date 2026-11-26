@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
+import { useTranslation } from '../../utils/i18n'
 
 // Put your images in  frontend/public/login-bg/  (or wherever your static files are served)
 const BACKGROUND_IMAGES = [
@@ -99,6 +100,7 @@ function BackgroundSlideshow() {
 
 export function LoginPage() {
   const { user, loginWithGoogle, loginLocal, signupLocal, forgotPassword, resetPassword } = useAuth()
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
@@ -288,13 +290,13 @@ export function LoginPage() {
               CIS TRIL Portal
             </h1>
             <p className="mt-2 text-right font-montserrat text-xs font-medium uppercase tracking-wide text-hunter-green sm:text-sm lg:text-base">
-              Asset Management System
+              {t('Asset Management System')}
             </p>
           </div>
 
           {error && (
             <div className="mb-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">
-              {error}
+              {t(error)}
             </div>
           )}
 
@@ -303,11 +305,11 @@ export function LoginPage() {
               {mode === 'forgot' ? (
                 <form onSubmit={handleForgotPassword} className="space-y-3">
                   <p className="text-sm text-hunter-green">
-                    Enter your account email to request password reset instructions.
+                    {t('Enter your account email to request password reset instructions.')}
                   </p>
                   {mode === 'signup' ? (
                     <div>
-                      <label className="block text-xs font-semibold text-evergreen">ID Number</label>
+                      <label className="block text-xs font-semibold text-evergreen">{t('ID Number')}</label>
                       <input
                         type="text"
                         inputMode="numeric"
@@ -319,13 +321,13 @@ export function LoginPage() {
                           setIdNumber(e.target.value.replace(/\D/g, '').slice(0, 7))
                           setFieldErrors((current) => ({ ...current, idNumber: undefined }))
                         }}
-                        placeholder="7-digit ID number"
+                        placeholder={t('7-digit ID number')}
                         className="mt-1 w-full rounded-lg border border-palm-leaf/50 bg-white px-3 py-2 text-sm text-evergreen focus:border-fern focus:outline-none"
                       />
                     </div>
                   ) : (
                     <div>
-                      <label className="block text-xs font-semibold text-evergreen">ID Number or Email</label>
+                      <label className="block text-xs font-semibold text-evergreen">{t('ID Number or Email')}</label>
                       <input
                         type="text"
                         required
@@ -334,7 +336,7 @@ export function LoginPage() {
                           setEmail(e.target.value)
                           setFieldErrors((current) => ({ ...current, identifier: undefined }))
                         }}
-                        placeholder="ID number or email"
+                        placeholder={t('ID number or email')}
                         className="mt-1 w-full rounded-lg border border-palm-leaf/50 bg-white px-3 py-2 text-sm text-evergreen focus:border-fern focus:outline-none"
                       />
                     </div>
@@ -344,14 +346,14 @@ export function LoginPage() {
                     disabled={submitting}
                     className="w-full rounded-lg bg-hunter-green py-2.5 text-sm font-semibold text-cornsilk disabled:opacity-50"
                   >
-                    {submitting ? 'Sending...' : 'Send Reset Instructions'}
+                    {submitting ? t('Sending...') : t('Send Reset Instructions')}
                   </button>
                 </form>
               ) : (
                 <form onSubmit={handleResetPassword} className="space-y-3">
-                  <p className="text-sm text-hunter-green">Create a new password for your account.</p>
+                  <p className="text-sm text-hunter-green">{t('Create a new password for your account.')}</p>
                   <div>
-                    <label className="block text-xs font-semibold text-evergreen">New Password</label>
+                    <label className="block text-xs font-semibold text-evergreen">{t('New Password')}</label>
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
@@ -361,35 +363,35 @@ export function LoginPage() {
                           setPassword(e.target.value)
                           setFieldErrors((current) => ({ ...current, password: undefined }))
                         }}
-                         placeholder="Password"
+                         placeholder={t('Password')}
                         className="mt-1 w-full rounded-lg border border-palm-leaf/50 bg-white px-3 py-2 pr-10 text-sm text-evergreen focus:border-fern focus:outline-none"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword((visible) => !visible)}
                         className="absolute right-3 top-1/2 mt-0.5 -translate-y-1/2 text-hunter-green"
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        aria-label={t(showPassword ? 'Hide password' : 'Show password')}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-evergreen">Confirm Password</label>
+                    <label className="block text-xs font-semibold text-evergreen">{t('Confirm Password')}</label>
                     <div className="relative">
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         required
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Confirm password"
+                        placeholder={t('Confirm password')}
                         className="mt-1 w-full rounded-lg border border-palm-leaf/50 bg-white px-3 py-2 pr-10 text-sm text-evergreen focus:border-fern focus:outline-none"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword((visible) => !visible)}
                         className="absolute right-3 top-1/2 mt-0.5 -translate-y-1/2 text-hunter-green"
-                        aria-label={showConfirmPassword ? 'Hide confirmation password' : 'Show confirmation password'}
+                        aria-label={t(showConfirmPassword ? 'Hide confirmation password' : 'Show confirmation password')}
                       >
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
@@ -401,7 +403,7 @@ export function LoginPage() {
                         key={rule.label}
                         className={rule.test(password) ? 'text-fern' : 'text-red-700'}
                       >
-                        {rule.test(password) ? '✓' : '•'} {rule.label}
+                        {rule.test(password) ? '✓' : '•'} {t(rule.label)}
                       </li>
                     ))}
                   </ul>
@@ -410,7 +412,7 @@ export function LoginPage() {
                     disabled={submitting}
                     className="w-full rounded-lg bg-hunter-green py-2.5 text-sm font-semibold text-cornsilk disabled:opacity-50"
                   >
-                    {submitting ? 'Resetting...' : 'Reset Password'}
+                    {submitting ? t('Resetting...') : t('Reset Password')}
                   </button>
                 </form>
               )}
@@ -424,7 +426,7 @@ export function LoginPage() {
                 }}
                 className="mt-4 w-full text-sm font-semibold text-hunter-green underline-offset-2 hover:underline"
               >
-                Back to Login
+                {t('Back to Login')}
               </button>
             </div>
           ) : (
@@ -444,7 +446,7 @@ export function LoginPage() {
                   : 'text-evergreen hover:bg-evergreen/10'
               }`}
             >
-              Login
+              {t('Login')}
             </button>
             <button
               type="button"
@@ -460,20 +462,20 @@ export function LoginPage() {
                   : 'text-evergreen hover:bg-evergreen/10'
               }`}
             >
-              Sign Up
+              {t('Sign Up')}
             </button>
           </div>
 
           <form key={mode} onSubmit={handleLocalSubmit} noValidate className="login-mode-enter space-y-3">
             {mode === 'signup' && (
               <div>
-                <label className="block text-xs font-semibold text-evergreen">Full Name</label>
+                <label className="block text-xs font-semibold text-evergreen">{t('Full Name')}</label>
                 <input
                   type="text"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Full name"
+                  placeholder={t('Full name')}
                   aria-invalid={Boolean(fieldErrors.fullName)}
                   className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm text-evergreen focus:outline-none ${
                     fieldErrors.fullName
@@ -482,13 +484,13 @@ export function LoginPage() {
                   }`}
                 />
                 {fieldErrors.fullName && (
-                  <p className="mt-1 text-xs font-medium text-red-600">{fieldErrors.fullName}</p>
+                  <p className="mt-1 text-xs font-medium text-red-600">{t(fieldErrors.fullName)}</p>
                 )}
               </div>
             )}
             {mode === 'signup' ? (
               <div>
-                <label className="block text-xs font-semibold text-evergreen">ID Number</label>
+                <label className="block text-xs font-semibold text-evergreen">{t('ID Number')}</label>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -497,7 +499,7 @@ export function LoginPage() {
                   required
                   value={idNumber}
                   onChange={(e) => setIdNumber(e.target.value.replace(/\D/g, '').slice(0, 7))}
-                  placeholder="7-digit ID number"
+                  placeholder={t('7-digit ID number')}
                   aria-invalid={Boolean(fieldErrors.idNumber)}
                   className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm text-evergreen focus:outline-none ${
                     fieldErrors.idNumber
@@ -506,18 +508,18 @@ export function LoginPage() {
                   }`}
                 />
                 {fieldErrors.idNumber && (
-                  <p className="mt-1 text-xs font-medium text-red-600">{fieldErrors.idNumber}</p>
+                  <p className="mt-1 text-xs font-medium text-red-600">{t(fieldErrors.idNumber)}</p>
                 )}
               </div>
             ) : (
               <div>
-                <label className="block text-xs font-semibold text-evergreen">ID Number or Email</label>
+                <label className="block text-xs font-semibold text-evergreen">{t('ID Number or Email')}</label>
                 <input
                   type="text"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ID number or email"
+                  placeholder={t('ID number or email')}
                   aria-invalid={Boolean(fieldErrors.identifier)}
                   className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm text-evergreen focus:outline-none ${
                     fieldErrors.identifier
@@ -526,19 +528,19 @@ export function LoginPage() {
                   }`}
                 />
                 {fieldErrors.identifier && (
-                  <p className="mt-1 text-xs font-medium text-red-600">{fieldErrors.identifier}</p>
+                  <p className="mt-1 text-xs font-medium text-red-600">{t(fieldErrors.identifier)}</p>
                 )}
               </div>
             )}
             <div>
-              <label className="block text-xs font-semibold text-evergreen">Password</label>
+              <label className="block text-xs font-semibold text-evergreen">{t('Password')}</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
+                  placeholder={t('Password')}
                   aria-invalid={Boolean(fieldErrors.password)}
                   className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 pr-10 text-sm text-evergreen focus:outline-none ${
                     fieldErrors.password
@@ -550,25 +552,25 @@ export function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword((visible) => !visible)}
                   className="absolute right-3 top-1/2 mt-0.5 -translate-y-1/2 text-hunter-green"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={t(showPassword ? 'Hide password' : 'Show password')}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               {fieldErrors.password && (
-                <p className="mt-1 text-xs font-medium text-red-600">{fieldErrors.password}</p>
+                <p className="mt-1 text-xs font-medium text-red-600">{t(fieldErrors.password)}</p>
               )}
             </div>
             {mode === 'signup' && (
               <div>
-                <label className="block text-xs font-semibold text-evergreen">Confirm Password</label>
+                <label className="block text-xs font-semibold text-evergreen">{t('Confirm Password')}</label>
                 <div className="relative">
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm Password"
+                    placeholder={t('Confirm Password')}
                     aria-invalid={Boolean(fieldErrors.confirmPassword)}
                     className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 pr-10 text-sm text-evergreen focus:outline-none ${
                       fieldErrors.confirmPassword
@@ -580,13 +582,13 @@ export function LoginPage() {
                     type="button"
                     onClick={() => setShowConfirmPassword((visible) => !visible)}
                     className="absolute right-3 top-1/2 mt-0.5 -translate-y-1/2 text-hunter-green"
-                    aria-label={showConfirmPassword ? 'Hide confirmation password' : 'Show confirmation password'}
+                    aria-label={t(showConfirmPassword ? 'Hide confirmation password' : 'Show confirmation password')}
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 {fieldErrors.confirmPassword && (
-                  <p className="mt-1 text-xs font-medium text-red-600">{fieldErrors.confirmPassword}</p>
+                  <p className="mt-1 text-xs font-medium text-red-600">{t(fieldErrors.confirmPassword)}</p>
                 )}
               </div>
             )}
@@ -595,7 +597,7 @@ export function LoginPage() {
               PASSWORD_RULES.some((rule) => !rule.test(password)) && (
                 <ul className="grid grid-cols-1 gap-1 text-xs text-red-700 sm:grid-cols-2">
                   {PASSWORD_RULES.filter((rule) => !rule.test(password)).map((rule) => (
-                    <li key={rule.label}>• {rule.label}</li>
+                    <li key={rule.label}>• {t(rule.label)}</li>
                   ))}
                 </ul>
               )
@@ -609,7 +611,7 @@ export function LoginPage() {
                 }}
                 className="ml-auto block text-xs font-semibold text-hunter-green underline-offset-2 hover:underline"
               >
-                Forgot password?
+                {t('Forgot password?')}
               </button>
             )}
             <button
@@ -619,15 +621,15 @@ export function LoginPage() {
             >
               {submitting
                 ? mode === 'signup'
-                  ? 'Signing up...'
-                  : 'Signing in...'
+                  ? t('Signing up...')
+                  : t('Signing in...')
                 : mode === 'signup'
-                  ? 'Sign Up'
-                  : 'Login'}
+                  ? t('Sign Up')
+                  : t('Login')}
             </button>
           </form>
 
-          <p className="mt-4 text-center text-sm text-hunter-green">or</p>
+          <p className="mt-4 text-center text-sm text-hunter-green">{t('or')}</p>
           <div className="mt-4 flex justify-center">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}

@@ -5,6 +5,8 @@ import { ProtectedRoute } from './features/auth/ProtectedRoute'
 import { DashboardPage } from './features/dashboard/DashboardPage'
 import { UsersManagePage } from './features/users/UsersManagePage'
 import { ProfilePage } from './features/profile/ProfilePage'
+import { ClassSessionsPage } from './features/sessions/ClassSessionsPage'
+import { InstructorProfilePage } from './features/instructors/InstructorProfilePage'
 
 export default function App() {
   return (
@@ -15,8 +17,10 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
             <Route path="/" element={<DashboardPage />} />
+            <Route path="/sessions" element={<ClassSessionsPage />} />
             <Route path="/users" element={<UsersManagePage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/instructors/:instructorId" element={<InstructorProfilePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Route>

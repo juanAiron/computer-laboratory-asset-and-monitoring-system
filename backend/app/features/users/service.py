@@ -34,6 +34,32 @@ def list_users(db: Session, search: str | None = None, role: UserRole | None = N
     return list(db.scalars(stmt).all())
 
 
+def list_active_instructors(db: Session) -> list[User]:
+    stmt = (
+        select(User)
+        .where(
+            User.role == UserRole.INSTRUCTOR,
+            User.is_active.is_(True),
+            User.deactivated_at.is_(None),
+        )
+        .order_by(User.full_name.asc())
+    )
+    return list(db.scalars(stmt).all())
+
+
+def get_instructor_profile(db: Session, instructor_id: int) -> User:
+    instructor = db.get(User, instructor_id)
+    if (
+        not instructor
+        or instructor.role != UserRole.INSTRUCTOR
+        or not instructor.is_active
+        or instructor.deactivated_at is not None
+        or instructor.profile_visibility == "private"
+    ):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Instructor profile not found")
+    return instructor
+
+
 def create_user(db: Session, payload: UserCreate, actor: User) -> User:
     if db.scalar(select(User).where(User.email == payload.email)):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")

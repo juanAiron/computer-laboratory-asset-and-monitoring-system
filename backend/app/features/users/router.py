@@ -6,7 +6,15 @@ from app.core.permissions import get_current_user
 from app.db.session import get_db
 from app.features.users import service
 from app.features.users.models import User, UserRole
-from app.features.users.schemas import CSVImportResult, PasswordChange, ProfileUpdate, UserCreate, UserResponse, UserUpdate
+from app.features.users.schemas import (
+    CSVImportResult,
+    InstructorOptionResponse,
+    PasswordChange,
+    ProfileUpdate,
+    UserCreate,
+    UserResponse,
+    UserUpdate,
+)
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -52,6 +60,23 @@ def list_users(
     db: Session = Depends(get_db),
 ):
     return service.list_users(db, search=search, role=role)
+
+
+@router.get("/instructors", response_model=list[InstructorOptionResponse])
+def list_active_instructors(
+    _: User = Depends(require_role(UserRole.DEPT_HEAD)),
+    db: Session = Depends(get_db),
+):
+    return service.list_active_instructors(db)
+
+
+@router.get("/instructors/{instructor_id}", response_model=InstructorOptionResponse)
+def get_instructor_profile(
+    instructor_id: int,
+    _: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return service.get_instructor_profile(db, instructor_id)
 
 
 @router.post("", response_model=UserResponse, status_code=201)

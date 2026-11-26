@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import api from '../../api/client'
 import { useAuth } from '../../hooks/useAuth'
+import { useTranslation } from '../../utils/i18n'
 import { ROLE_LABELS } from '../../utils/roles'
 
 export function UsersManagePage() {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const [users, setUsers] = useState([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
@@ -46,48 +48,42 @@ export function UsersManagePage() {
   }
 
   return (
-    <div className="space-y-4 p-4 md:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-evergreen">Users &amp; Roster</h1>
-          <p className="text-sm text-hunter-green">Manage accounts and system access.</p>
-        </div>
-        <div className="flex gap-2">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && loadUsers()}
-            placeholder="Search users"
-            className="rounded-lg border border-palm-leaf/50 px-3 py-2 text-sm"
-          />
-          <button
-            type="button"
-            onClick={loadUsers}
-            className="rounded-lg bg-hunter-green px-4 py-2 text-sm font-semibold text-cornsilk"
-          >
-            Search
-          </button>
-        </div>
+    <div className="space-y-4">
+      <div className="flex justify-end gap-2">
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && loadUsers()}
+          placeholder={t('Search users')}
+          className="rounded-lg border border-palm-leaf/50 px-3 py-2 text-sm"
+        />
+        <button
+          type="button"
+          onClick={loadUsers}
+          className="rounded-lg bg-hunter-green px-4 py-2 text-sm font-semibold text-cornsilk"
+        >
+          {t('Search')}
+        </button>
       </div>
 
       {error && (
         <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">
-          {error}
+          {t(error)}
         </div>
       )}
 
       {loading ? (
-        <p className="text-sm text-hunter-green">Loading users...</p>
+        <p className="text-sm text-hunter-green">{t('Loading users...')}</p>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-palm-leaf/30 bg-white">
           <table className="w-full min-w-[680px] text-left text-sm">
             <thead className="bg-evergreen/5 text-evergreen">
               <tr>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Email / ID</th>
-                <th className="px-4 py-3">Role</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Action</th>
+                <th className="px-4 py-3">{t('Name')}</th>
+                <th className="px-4 py-3">{t('Email / ID')}</th>
+                <th className="px-4 py-3">{t('Role')}</th>
+                <th className="px-4 py-3">{t('Status')}</th>
+                <th className="px-4 py-3">{t('Action')}</th>
               </tr>
             </thead>
             <tbody>
@@ -107,12 +103,12 @@ export function UsersManagePage() {
                     >
                       {Object.entries(ROLE_LABELS).map(([role, label]) => (
                         <option key={role} value={role}>
-                          {label}
+                          {t(label)}
                         </option>
                       ))}
                     </select>
                   </td>
-                  <td className="px-4 py-3">{account.is_active ? 'Active' : 'Inactive'}</td>
+                  <td className="px-4 py-3">{t(account.is_active ? 'Active' : 'Inactive')}</td>
                   <td className="px-4 py-3">
                     <button
                       type="button"
@@ -120,7 +116,7 @@ export function UsersManagePage() {
                       disabled={account.role === 'super_admin' && account.id !== user?.id}
                       className="rounded-lg border border-palm-leaf/50 px-3 py-1.5 text-xs font-semibold hover:bg-evergreen/5 disabled:opacity-50"
                     >
-                      {account.is_active ? 'Deactivate' : 'Activate'}
+                      {t(account.is_active ? 'Deactivate' : 'Activate')}
                     </button>
                   </td>
                 </tr>

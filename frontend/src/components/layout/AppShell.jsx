@@ -2,17 +2,27 @@ import { useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { ChevronDown, CircleUserRound, LogOut } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
+import { useTranslation } from '../../utils/i18n'
 import { ROLE_LABELS } from '../../utils/roles'
 import { MobileNav } from './MobileNav'
 import { Sidebar } from './Sidebar'
 
+const PAGE_HEADERS = {
+  '/': { title: 'Dashboard', subtitle: 'Live Laboratory Overview' },
+  '/sessions': { title: 'Lab Schedules', subtitle: 'Choose a classroom to view its schedule.' },
+  '/users': { title: 'Users & Roster', subtitle: 'Manage accounts and system access.' },
+  '/profile': { title: 'Profile Settings', subtitle: 'Account information and preferences.' },
+}
+
 export function AppShell() {
   const { user, logout } = useAuth()
+  const { t } = useTranslation()
   const [profileOpen, setProfileOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const profileRef = useRef(null)
   const navigate = useNavigate()
   const location = useLocation()
-  const isProfilePage = location.pathname === '/profile'
+  const pageHeader = PAGE_HEADERS[location.pathname]
 
   useEffect(() => {
     const handlePointerDown = (event) => {
@@ -44,7 +54,7 @@ export function AppShell() {
 
       const destination = new URL(link.href, window.location.origin)
       if (destination.pathname === '/profile') return
-      if (!window.confirm('Discard unsaved changes?')) {
+      if (!window.confirm(t('Discard unsaved changes?'))) {
         event.preventDefault()
         event.stopPropagation()
       } else {
@@ -53,7 +63,7 @@ export function AppShell() {
     }
     document.addEventListener('click', handleNavigation, true)
     return () => document.removeEventListener('click', handleNavigation, true)
-  }, [])
+  }, [t])
 
   const initials = user?.full_name
     ?.split(/\s+/)
@@ -75,7 +85,7 @@ export function AppShell() {
         {user?.profile_photo_url ? (
           <img
             src={user.profile_photo_url}
-            alt={user.full_name || 'Profile'}
+            alt={user.full_name || t('Profile')}
             className="h-9 w-9 rounded-full object-cover"
           />
         ) : (
@@ -93,7 +103,7 @@ export function AppShell() {
         >
           <div className="border-b border-palm-leaf/20 px-4 pb-3">
             <p className="truncate text-sm font-bold text-evergreen">{user?.full_name}</p>
-            <p className="mt-0.5 text-xs text-hunter-green">{ROLE_LABELS[user?.role] || user?.role}</p>
+            <p className="mt-0.5 text-xs text-hunter-green">{t(ROLE_LABELS[user?.role] || user?.role)}</p>
           </div>
           <button
             type="button"
@@ -105,7 +115,7 @@ export function AppShell() {
             className="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-medium text-evergreen hover:bg-cornsilk/60"
           >
             <CircleUserRound className="h-4 w-4 text-hunter-green" />
-            Profile Settings
+            {t('Profile Settings')}
           </button>
           <button
             type="button"
@@ -114,7 +124,7 @@ export function AppShell() {
             className="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-50"
           >
             <LogOut className="h-4 w-4" />
-            Sign Out
+            {t('Sign Out')}
           </button>
         </div>
       )}
@@ -123,13 +133,16 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-screen bg-cornsilk/40">
-      <Sidebar />
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed((collapsed) => !collapsed)}
+      />
       <div className="flex flex-1 flex-col pb-16 md:pb-0">
         <header className="flex h-[72px] items-center justify-between border-b border-palm-leaf/30 bg-cornsilk px-4 md:px-8">
-          {isProfilePage ? (
+          {pageHeader ? (
             <div>
-              <p className="text-xl font-bold leading-tight text-evergreen">Profile Settings</p>
-              <p className="mt-0.5 text-xs text-hunter-green">Manage your account information and preferences.</p>
+              <p className="text-xl font-bold leading-tight text-evergreen">{t(pageHeader.title)}</p>
+              <p className="mt-0.5 text-xs text-hunter-green">{t(pageHeader.subtitle)}</p>
             </div>
           ) : (
             <div />

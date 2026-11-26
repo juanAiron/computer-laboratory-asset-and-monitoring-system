@@ -69,6 +69,20 @@ class UserResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class InstructorSummary(BaseModel):
+    id: int
+    full_name: str
+    profile_photo_url: str | None = None
+    department: str | None = None
+    office: str | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class InstructorOptionResponse(InstructorSummary):
+    email: str
+
+
 class CSVImportResult(BaseModel):
     created: int
     updated: int

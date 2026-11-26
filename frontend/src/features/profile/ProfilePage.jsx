@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import api from '../../api/client'
 import { useAuth } from '../../hooks/useAuth'
+import { normalizeLanguage, useTranslation } from '../../utils/i18n'
 import { ROLE_LABELS, ROLES } from '../../utils/roles'
 
 const TABS = [
@@ -28,6 +29,7 @@ const TABS = [
 
 export function ProfilePage() {
   const { user, updateProfile, updateProfilePhoto, logout } = useAuth()
+  const { t } = useTranslation()
   const fileInputRef = useRef(null)
   const [activeTab, setActiveTab] = useState('personal')
   const [fullName, setFullName] = useState(user?.full_name || '')
@@ -51,7 +53,7 @@ export function ProfilePage() {
   const [profileVisibility, setProfileVisibility] = useState(user?.profile_visibility || 'members')
   const [activityVisibility, setActivityVisibility] = useState(user?.activity_visibility || 'members')
   const [theme, setTheme] = useState(() => localStorage.getItem('profile_theme') || 'system')
-  const [language, setLanguage] = useState(() => localStorage.getItem('profile_language') || 'English')
+  const [language, setLanguage] = useState(() => normalizeLanguage(localStorage.getItem('profile_language') || 'English'))
   const [defaultView, setDefaultView] = useState(() => localStorage.getItem('profile_default_view') || 'dashboard')
   const [savedTheme, setSavedTheme] = useState(theme)
   const [savedLanguage, setSavedLanguage] = useState(language)
@@ -239,6 +241,7 @@ export function ProfilePage() {
     localStorage.setItem('profile_email_updates', String(email))
     localStorage.setItem('profile_theme', theme)
     localStorage.setItem('profile_language', language)
+    window.dispatchEvent(new Event('app-language-change'))
     localStorage.setItem('profile_default_view', defaultView)
     setSavedCompactView(compact)
     setSavedEmailUpdates(email)
@@ -280,10 +283,10 @@ export function ProfilePage() {
             <div key={toast.id} className={`flex items-start gap-3 rounded-lg border-l-4 px-4 py-3 shadow-lg ${styles}`}>
               <Icon className="mt-0.5 h-5 w-5 shrink-0" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold">{toast.title}</p>
-                <p className="mt-0.5 text-xs opacity-90">{toast.detail}</p>
+                <p className="text-sm font-bold">{t(toast.title)}</p>
+                <p className="mt-0.5 text-xs opacity-90">{t(toast.detail)}</p>
               </div>
-              <button type="button" onClick={() => dismissToast(toast.id)} className="rounded p-0.5 opacity-70 hover:opacity-100" aria-label="Dismiss">
+              <button type="button" onClick={() => dismissToast(toast.id)} className="rounded p-0.5 opacity-70 hover:opacity-100" aria-label={t('Dismiss')}>
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -311,7 +314,7 @@ export function ProfilePage() {
               }`}
             >
               <Icon className="h-4 w-4" />
-              {label}
+              {t(label)}
             </button>
           ))}
         </aside>
@@ -319,12 +322,12 @@ export function ProfilePage() {
         <section className="rounded-xl border border-palm-leaf/30 bg-white p-5 md:p-6">
           {activeTab === 'personal' && (
             <form onSubmit={savePersonalInfo}>
-              <h2 className="text-lg font-bold text-evergreen">Personal Info</h2>
+              <h2 className="text-lg font-bold text-evergreen">{t('Personal Info')}</h2>
               <div className="mt-5 flex items-center gap-5">
                 {pendingPhotoPreview || user?.profile_photo_url ? (
                   <img
                     src={pendingPhotoPreview || user.profile_photo_url}
-                    alt={user?.full_name || 'Profile'}
+                    alt={user?.full_name || t('Profile')}
                     className="h-24 w-24 rounded-full object-cover"
                   />
                 ) : (
@@ -340,15 +343,15 @@ export function ProfilePage() {
                     className="flex items-center gap-2 rounded-lg border border-palm-leaf/50 px-3 py-2 text-sm font-semibold text-evergreen hover:bg-cornsilk/60"
                   >
                     <Camera className="h-4 w-4" />
-                    Change photo
+                    {t('Change photo')}
                   </button>
-                  <p className="mt-2 text-xs text-hunter-green">JPG, PNG, or WebP</p>
+                  <p className="mt-2 text-xs text-hunter-green">{t('JPG, PNG, or WebP')}</p>
                 </div>
               </div>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-semibold text-evergreen">Display Name</label>
+                  <label className="block text-xs font-semibold text-evergreen">{t('Display Name')}</label>
                   <input
                     value={fullName}
                     onChange={(event) => {
@@ -362,20 +365,20 @@ export function ProfilePage() {
                   />
                   {personalTouched && (
                     <p className={`mt-1 text-xs ${fullNameValid ? 'text-fern' : 'text-red-700'}`}>
-                      {fullNameValid ? 'Display name looks good.' : 'Enter at least 2 characters.'}
+                      {t(fullNameValid ? 'Display name looks good.' : 'Enter at least 2 characters.')}
                     </p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-evergreen">ID Number</label>
+                  <label className="block text-xs font-semibold text-evergreen">{t('ID Number')}</label>
                   <input
-                    value={user?.id_number || 'Not assigned'}
+                    value={user?.id_number || t('Not assigned')}
                     disabled
                     className="mt-1 w-full cursor-not-allowed rounded-lg border border-palm-leaf/30 bg-cornsilk/60 px-3 py-2 text-sm text-hunter-green opacity-70"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-evergreen">Email</label>
+                  <label className="block text-xs font-semibold text-evergreen">{t('Email')}</label>
                   <input
                     value={user?.email || ''}
                     disabled
@@ -384,7 +387,7 @@ export function ProfilePage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-evergreen">
-                    {isStudent ? 'Course / Year' : 'Role'}
+                    {t(isStudent ? 'Course / Year' : 'Role')}
                   </label>
                   {isStudent ? (
                     <input
@@ -394,7 +397,7 @@ export function ProfilePage() {
                     />
                   ) : (
                     <input
-                      value={ROLE_LABELS[user?.role] || user?.role || ''}
+                      value={t(ROLE_LABELS[user?.role] || user?.role || '')}
                       disabled
                       className="mt-1 w-full cursor-not-allowed rounded-lg border border-palm-leaf/30 bg-cornsilk/60 px-3 py-2 text-sm text-hunter-green opacity-70"
                     />
@@ -403,20 +406,20 @@ export function ProfilePage() {
                 {!isStudent && (
                   <>
                     <div>
-                      <label className="block text-xs font-semibold text-evergreen">Department</label>
+                      <label className="block text-xs font-semibold text-evergreen">{t('Department')}</label>
                       <input
                         value={department}
                         onChange={(event) => setDepartment(event.target.value)}
-                        placeholder="Example: Computer Science"
+                        placeholder={t('Example: Computer Science')}
                         className="mt-1 w-full rounded-lg border border-palm-leaf/50 px-3 py-2 text-sm text-evergreen focus:border-fern focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-evergreen">Office</label>
+                      <label className="block text-xs font-semibold text-evergreen">{t('Office')}</label>
                       <input
                         value={office}
                         onChange={(event) => setOffice(event.target.value)}
-                        placeholder="Example: TRIL Laboratory"
+                        placeholder={t('Example: TRIL Laboratory')}
                         className="mt-1 w-full rounded-lg border border-palm-leaf/50 px-3 py-2 text-sm text-evergreen focus:border-fern focus:outline-none"
                       />
                     </div>
@@ -430,7 +433,7 @@ export function ProfilePage() {
                   className="flex items-center gap-2 rounded-lg bg-hunter-green px-4 py-2.5 text-sm font-semibold text-cornsilk disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save className="h-4 w-4" />
-                  Save changes
+                  {t('Save changes')}
                 </button>
               </div>
             </form>
@@ -438,10 +441,10 @@ export function ProfilePage() {
 
           {activeTab === 'security' && (
             <form onSubmit={changePassword}>
-              <h2 className="text-lg font-bold text-evergreen">Account &amp; Security</h2>
+              <h2 className="text-lg font-bold text-evergreen">{t('Account & Security')}</h2>
               <div className="mt-5 max-w-md space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-evergreen">Current Password</label>
+                  <label className="block text-xs font-semibold text-evergreen">{t('Current Password')}</label>
                   <input
                     type="password"
                     value={currentPassword}
@@ -457,7 +460,7 @@ export function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-evergreen">New Password</label>
+                  <label className="block text-xs font-semibold text-evergreen">{t('New Password')}</label>
                   <input
                     type="password"
                     value={newPassword}
@@ -473,12 +476,12 @@ export function ProfilePage() {
                   />
                   {newPassword && (
                     <p className={`mt-1 text-xs ${strongPassword ? 'text-fern' : 'text-red-700'}`}>
-                      {strongPassword ? 'Strong password.' : 'Use 10+ characters, uppercase, lowercase, and a number.'}
+                      {t(strongPassword ? 'Strong password.' : 'Use 10+ characters, uppercase, lowercase, and a number.')}
                     </p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-evergreen">Confirm New Password</label>
+                  <label className="block text-xs font-semibold text-evergreen">{t('Confirm New Password')}</label>
                   <input
                     type="password"
                     value={confirmPassword}
@@ -494,7 +497,7 @@ export function ProfilePage() {
                   />
                   {confirmPassword && (
                     <p className={`mt-1 text-xs ${passwordsMatch ? 'text-fern' : 'text-red-700'}`}>
-                      {passwordsMatch ? 'Passwords match.' : 'Passwords do not match.'}
+                      {t(passwordsMatch ? 'Passwords match.' : 'Passwords do not match.')}
                     </p>
                   )}
                 </div>
@@ -505,24 +508,24 @@ export function ProfilePage() {
                   disabled={saving || !securityDirty}
                   className="rounded-lg bg-hunter-green px-4 py-2.5 text-sm font-semibold text-cornsilk disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Change password
+                  {t('Change password')}
                 </button>
               </div>
               <div className="mt-6 border-t border-palm-leaf/30 pt-5">
-                <h3 className="text-sm font-bold text-evergreen">Active Sessions</h3>
+                <h3 className="text-sm font-bold text-evergreen">{t('Active Sessions')}</h3>
                 <div className="mt-3 flex items-center justify-between rounded-lg border border-palm-leaf/30 p-4">
                   <div>
-                    <p className="text-sm font-semibold text-evergreen">Current browser session</p>
-                    <p className="mt-0.5 text-xs text-hunter-green">Active now</p>
+                    <p className="text-sm font-semibold text-evergreen">{t('Current browser session')}</p>
+                    <p className="mt-0.5 text-xs text-hunter-green">{t('Active now')}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => {
-                      if (window.confirm('Sign out of this account on all devices?')) logout()
+                      if (window.confirm(t('Sign out of this account on all devices?'))) logout()
                     }}
                     className="rounded-lg border border-red-300 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-50"
                   >
-                    Sign out all devices
+                    {t('Sign out all devices')}
                   </button>
                 </div>
               </div>
@@ -531,44 +534,44 @@ export function ProfilePage() {
 
           {activeTab === 'preferences' && (
             <div>
-              <h2 className="text-lg font-bold text-evergreen">Preferences</h2>
+              <h2 className="text-lg font-bold text-evergreen">{t('Preferences')}</h2>
               <div className="mt-5 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div>
-                    <label className="block text-xs font-semibold text-evergreen">Theme</label>
+                    <label className="block text-xs font-semibold text-evergreen">{t('Theme')}</label>
                     <select value={theme} onChange={(event) => setTheme(event.target.value)} className="mt-1 w-full rounded-lg border border-palm-leaf/50 px-3 py-2 text-sm text-evergreen">
-                      <option value="light">Light</option>
-                      <option value="dark">Dark</option>
-                      <option value="system">System</option>
+                      <option value="light">{t('Light')}</option>
+                      <option value="dark">{t('Dark')}</option>
+                      <option value="system">{t('System')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-evergreen">Language</label>
+                    <label className="block text-xs font-semibold text-evergreen">{t('Language')}</label>
                     <select value={language} onChange={(event) => setLanguage(event.target.value)} className="mt-1 w-full rounded-lg border border-palm-leaf/50 px-3 py-2 text-sm text-evergreen">
-                      <option>English</option>
-                      <option>Filipino</option>
+                      <option value="English">{t('English')}</option>
+                      <option value="Tagalog">{t('Tagalog')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-evergreen">Default View</label>
+                    <label className="block text-xs font-semibold text-evergreen">{t('Default View')}</label>
                     <select value={defaultView} onChange={(event) => setDefaultView(event.target.value)} className="mt-1 w-full rounded-lg border border-palm-leaf/50 px-3 py-2 text-sm text-evergreen">
-                      <option value="dashboard">Dashboard</option>
-                      <option value="labs">Computer Labs</option>
-                      <option value="borrowed">Borrowed</option>
+                      <option value="dashboard">{t('Dashboard')}</option>
+                      <option value="labs">{t('Computer Labs')}</option>
+                      <option value="borrowed">{t('Borrowed')}</option>
                     </select>
                   </div>
                 </div>
                 <label className="flex items-center justify-between rounded-lg border border-palm-leaf/30 p-4">
                   <span>
-                    <span className="block text-sm font-semibold text-evergreen">Compact View</span>
-                    <span className="text-xs text-hunter-green">Use tighter spacing across dashboard cards.</span>
+                    <span className="block text-sm font-semibold text-evergreen">{t('Compact View')}</span>
+                    <span className="text-xs text-hunter-green">{t('Use tighter spacing across dashboard cards.')}</span>
                   </span>
                   <input type="checkbox" checked={compactView} onChange={(event) => setCompactView(event.target.checked)} />
                 </label>
                 <label className="flex items-center justify-between rounded-lg border border-palm-leaf/30 p-4">
                   <span>
-                    <span className="block text-sm font-semibold text-evergreen">Email Updates</span>
-                    <span className="text-xs text-hunter-green">Receive account and laboratory notifications.</span>
+                    <span className="block text-sm font-semibold text-evergreen">{t('Email Updates')}</span>
+                    <span className="text-xs text-hunter-green">{t('Receive account and laboratory notifications.')}</span>
                   </span>
                   <input type="checkbox" checked={emailUpdates} onChange={(event) => setEmailUpdates(event.target.checked)} />
                 </label>
@@ -581,7 +584,7 @@ export function ProfilePage() {
                   className="flex items-center gap-2 rounded-lg bg-hunter-green px-4 py-2.5 text-sm font-semibold text-cornsilk disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save className="h-4 w-4" />
-                  Save preferences
+                  {t('Save preferences')}
                 </button>
               </div>
             </div>
@@ -589,7 +592,7 @@ export function ProfilePage() {
 
           {activeTab === 'notifications' && (
             <div>
-              <h2 className="text-lg font-bold text-evergreen">Notification Settings</h2>
+              <h2 className="text-lg font-bold text-evergreen">{t('Notification Settings')}</h2>
               <div className="mt-5 space-y-3">
                 {[
                   ['dueDates', 'Borrow Due Dates', 'Remind you before borrowed equipment is due.'],
@@ -599,8 +602,8 @@ export function ProfilePage() {
                 ].map(([key, label, description]) => (
                   <label key={key} className="flex items-center justify-between rounded-lg border border-palm-leaf/30 p-4">
                     <span>
-                      <span className="block text-sm font-semibold text-evergreen">{label}</span>
-                      <span className="text-xs text-hunter-green">{description}</span>
+                      <span className="block text-sm font-semibold text-evergreen">{t(label)}</span>
+                      <span className="text-xs text-hunter-green">{t(description)}</span>
                     </span>
                     <input
                       type="checkbox"
@@ -625,7 +628,7 @@ export function ProfilePage() {
                   className="flex items-center gap-2 rounded-lg bg-hunter-green px-4 py-2.5 text-sm font-semibold text-cornsilk disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save className="h-4 w-4" />
-                  Save notifications
+                  {t('Save notifications')}
                 </button>
               </div>
             </div>
@@ -633,29 +636,29 @@ export function ProfilePage() {
 
           {activeTab === 'privacy' && (
             <div>
-              <h2 className="text-lg font-bold text-evergreen">Privacy</h2>
+              <h2 className="text-lg font-bold text-evergreen">{t('Privacy')}</h2>
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-semibold text-evergreen">Profile Visibility</label>
+                  <label className="block text-xs font-semibold text-evergreen">{t('Profile Visibility')}</label>
                   <select
                     value={profileVisibility}
                     onChange={(event) => setProfileVisibility(event.target.value)}
                     className="mt-1 w-full rounded-lg border border-palm-leaf/50 px-3 py-2 text-sm text-evergreen"
                   >
-                    <option value="private">Private</option>
-                    <option value="members">System Members</option>
-                    <option value="public">Public</option>
+                    <option value="private">{t('Private')}</option>
+                    <option value="members">{t('System Members')}</option>
+                    <option value="public">{t('Public')}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-evergreen">Activity Visibility</label>
+                  <label className="block text-xs font-semibold text-evergreen">{t('Activity Visibility')}</label>
                   <select
                     value={activityVisibility}
                     onChange={(event) => setActivityVisibility(event.target.value)}
                     className="mt-1 w-full rounded-lg border border-palm-leaf/50 px-3 py-2 text-sm text-evergreen"
                   >
-                    <option value="private">Private</option>
-                    <option value="members">System Members</option>
+                    <option value="private">{t('Private')}</option>
+                    <option value="members">{t('System Members')}</option>
                   </select>
                 </div>
               </div>
@@ -681,7 +684,7 @@ export function ProfilePage() {
                   className="flex items-center gap-2 rounded-lg bg-hunter-green px-4 py-2.5 text-sm font-semibold text-cornsilk disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save className="h-4 w-4" />
-                  Save privacy
+                  {t('Save privacy')}
                 </button>
               </div>
             </div>
