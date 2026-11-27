@@ -1,17 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class LabRoomCreate(BaseModel):
-    code: str
-    name: str
-    building: str | None = None
-    capacity: int = 40
+    code: str = Field(min_length=4, max_length=10)
+    name: str = Field(min_length=1, max_length=100)
+    schedule_button_label: str | None = Field(default=None, max_length=100)
+    building: str | None = Field(default=None, max_length=100)
+    capacity: int = Field(default=40, gt=0)
 
 
 class LabRoomResponse(BaseModel):
     id: int
     code: str
     name: str
+    schedule_button_label: str | None
     building: str | None
     capacity: int
     is_active: bool

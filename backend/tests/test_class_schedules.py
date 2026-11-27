@@ -10,6 +10,8 @@ from sqlalchemy.pool import StaticPool
 from app.core.permissions import get_current_user
 from app.db.base import Base
 from app.db.session import get_db
+from app.features.labs.models import LabRoom
+from app.features.labs.router import router as labs_router
 from app.features.sessions.router import router as sessions_router
 from app.features.sessions.schemas import ClassScheduleResponse
 from app.features.users.models import User, UserRole
@@ -49,11 +51,37 @@ def schedule_api():
         role=UserRole.INSTRUCTOR,
         is_active=False,
     )
-    db.add_all([department_head, student, instructor, inactive_instructor])
+    super_admin = User(
+        email="admin@example.test",
+        full_name="Super Admin",
+        role=UserRole.SUPER_ADMIN,
+    )
+    schedule_rooms = [
+        LabRoom(code=code, name=name)
+        for code, name in (
+            ("D522", "D522"),
+            ("D524", "D524"),
+            ("D526", "D526"),
+            ("D528", "D528"),
+            ("D422", "D422"),
+            ("D427-CR", "Conference Room"),
+            ("D427-PL", "Photo Lab"),
+            ("D428-SL", "Sound Lab"),
+            ("D424-KC", "Knowledge Center"),
+            ("D426-OL", "Open Laboratory"),
+            ("D223", "D223"),
+            ("D722", "D722"),
+            ("D723", "D723"),
+            ("D724", "D724"),
+            ("D725", "D725"),
+        )
+    ]
+    db.add_all([department_head, student, instructor, inactive_instructor, super_admin, *schedule_rooms])
     db.commit()
 
-    active_user = {"user": student}
+    active_user = {"user": student, "super_admin": super_admin}
     app = FastAPI()
+    app.include_router(labs_router, prefix="/api/v1")
     app.include_router(sessions_router, prefix="/api/v1")
     app.include_router(users_router, prefix="/api/v1")
     app.dependency_overrides[get_current_user] = lambda: active_user["user"]
@@ -123,6 +151,74 @@ def test_department_head_can_manage_schedules_but_student_cannot(schedule_api):
 
     deleted = client.delete(f"/api/v1/sessions/schedules/{created.json()[0]['id']}")
     assert deleted.status_code == 204
+
+
+@pytest.mark.parametrize(
+    "room_code",
+    ["D427-CR", "D427-PL", "D428-SL", "D424-KC", "D426-OL"],
+)
+def test_department_head_can_schedule_new_fourth_floor_rooms(schedule_api, room_code):
+    client, active_user, department_head, instructor, _ = schedule_api
+    active_user["user"] = department_head
+
+    created = client.post(
+        "/api/v1/sessions/schedules/bulk",
+        json={
+            "room_code": room_code,
+            "days_of_week": [0],
+            "start_time": "08:30",
+            "end_time": "09:30",
+            "instructor_id": instructor.id,
+            "class_code": "9446A",
+            "course_number": "IT 411",
+            "course_name": "IT 411",
+        },
+    )
+
+    assert created.status_code == 201
+    assert created.json()[0]["room_code"] == room_code
+
+
+def test_only_super_admin_can_add_rooms_available_for_scheduling(schedule_api):
+    client, active_user, department_head, instructor, _ = schedule_api
+    room = {"code": "D999", "name": "New Lab", "capacity": 30}
+
+    active_user["user"] = department_head
+    assert client.post("/api/v1/labs", json=room).status_code == 403
+    assert client.post(
+        "/api/v1/sessions/schedules/bulk",
+        json={
+            "room_code": "D999",
+            "days_of_week": [0],
+            "start_time": "08:30",
+            "end_time": "09:30",
+            "instructor_id": instructor.id,
+            "class_code": "9446A",
+            "course_number": "IT 411",
+            "course_name": "IT 411",
+        },
+    ).status_code == 422
+
+    active_user["user"] = active_user["super_admin"]
+    created_room = client.post("/api/v1/labs", json=room)
+    assert created_room.status_code == 201
+
+    active_user["user"] = department_head
+    created_schedule = client.post(
+        "/api/v1/sessions/schedules/bulk",
+        json={
+            "room_code": "D999",
+            "days_of_week": [0],
+            "start_time": "08:30",
+            "end_time": "09:30",
+            "instructor_id": instructor.id,
+            "class_code": "9446A",
+            "course_number": "IT 411",
+            "course_name": "IT 411",
+        },
+    )
+    assert created_schedule.status_code == 201
+    assert created_schedule.json()[0]["room_code"] == "D999"
 
 
 def test_instructor_profile_endpoint_hides_private_and_non_instructor_accounts(schedule_api):

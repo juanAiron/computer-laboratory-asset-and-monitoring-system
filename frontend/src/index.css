@@ -232,6 +232,12 @@
   transition-duration: 220ms;
 }
 
+.room-selector-btn--compact {
+  font-size: 1rem;
+  line-height: 1.1;
+  white-space: pre-line;
+}
+
 .floor-filter-toggle {
   border: 0;
   border-radius: 0.5rem;

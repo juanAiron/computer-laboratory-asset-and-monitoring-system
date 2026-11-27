@@ -27,7 +27,7 @@ def list_labs(
 @router.post("", response_model=LabRoomResponse, status_code=201)
 def create_lab(
     payload: LabRoomCreate,
-    current_user: User = Depends(require_role(UserRole.TRIL_ADMIN, UserRole.DEPT_HEAD)),
+    current_user: User = Depends(require_role(UserRole.SUPER_ADMIN)),
     db: Session = Depends(get_db),
 ):
     return service.create_lab(db, payload, current_user)

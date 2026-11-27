@@ -24,12 +24,11 @@ export const NAV_ITEMS = [
   { to: '/labs', label: 'Computer Labs', icon: Monitor, roles: Object.values(ROLES) },
   { to: '/sessions', label: 'Lab Schedules', icon: ClipboardCheck, roles: Object.values(ROLES) },
   { to: '/scan', label: 'Quick Scan', icon: ScanLine, roles: [ROLES.CUSTODIAN, ROLES.TRIL_ADMIN] },
-  { to: '/assets', label: 'Hardware Assets', icon: Server, roles: [ROLES.TRIL_ADMIN, ROLES.DEPT_HEAD, ROLES.CUSTODIAN] },
+  { to: '/assets', label: 'Inventory', icon: Server, roles: [ROLES.SUPER_ADMIN, ROLES.TRIL_ADMIN, ROLES.DEPT_HEAD, ROLES.CUSTODIAN] },
   { to: '/loans', label: 'Borrowed', icon: HandHelping, roles: [ROLES.TRIL_ADMIN, ROLES.DEPT_HEAD, ROLES.CUSTODIAN] },
   { to: '/my-loans', label: 'My Borrowed Items', icon: HandHelping, roles: [ROLES.STUDENT, ROLES.INSTRUCTOR] },
   { to: '/consumables', label: 'Consumables', icon: Package, roles: [ROLES.TRIL_ADMIN, ROLES.DEPT_HEAD, ROLES.CUSTODIAN] },
   { to: '/repairs', label: 'Repair Tickets', icon: Wrench, roles: Object.values(ROLES) },
-  { to: '/counts', label: 'Inventory Audits', icon: ClipboardCheck, roles: [ROLES.CUSTODIAN, ROLES.TRIL_ADMIN] },
   { to: '/reports', label: 'Reports & QR', icon: FileSpreadsheet, roles: [ROLES.TRIL_ADMIN, ROLES.DEPT_HEAD, ROLES.CUSTODIAN] },
   { to: '/users', label: 'Users & Roster', icon: Users, roles: [ROLES.TRIL_ADMIN, ROLES.DEPT_HEAD] },
 ]

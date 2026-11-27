@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -11,6 +12,7 @@ class LabRoom(Base, TimestampMixin):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     code: Mapped[str] = mapped_column(String(30), unique=True, nullable=False)  # e.g., "CIS-LAB-1"
     name: Mapped[str] = mapped_column(String(100), nullable=False)
+    schedule_button_label: Mapped[str | None] = mapped_column(String(100), nullable=True)
     building: Mapped[str | None] = mapped_column(String(100), nullable=True)
     capacity: Mapped[int] = mapped_column(Integer, default=40, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

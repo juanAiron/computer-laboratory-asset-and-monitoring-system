@@ -1,3 +1,5 @@
+import re
+
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -13,6 +15,8 @@ from app.features.sessions.models import StationLog
 from app.features.users.models import User
 from app.shared.audit import AuditLog
 
+SCHEDULE_ROOM_CODE_PATTERN = re.compile(r"D[0-9]{3}(?:-[A-Z0-9]{1,6})?")
+
 
 def list_labs(db: Session) -> list[LabRoom]:
     return list(db.scalars(select(LabRoom).where(LabRoom.is_active.is_(True)).order_by(LabRoom.code)).all())
@@ -20,13 +24,26 @@ def list_labs(db: Session) -> list[LabRoom]:
 
 def create_lab(db: Session, payload: LabRoomCreate, actor: User) -> LabRoom:
     code = payload.code.strip().upper()
+    name = payload.name.strip()
+    if not SCHEDULE_ROOM_CODE_PATTERN.fullmatch(code):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Room code must use the format D### or D###-suffix.",
+        )
+    if not name:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Room name is required")
     if db.scalar(select(LabRoom).where(LabRoom.code == code)):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Lab room code already exists")
 
     lab = LabRoom(
         code=code,
-        name=payload.name.strip(),
-        building=payload.building,
+        name=name,
+        schedule_button_label=(
+            payload.schedule_button_label.strip()
+            if payload.schedule_button_label and payload.schedule_button_label.strip()
+            else code
+        ),
+        building=payload.building.strip() if payload.building and payload.building.strip() else None,
         capacity=payload.capacity,
     )
     db.add(lab)
@@ -140,6 +157,7 @@ def get_lab_seat_map(db: Session, lab_id: int) -> LabRoomDetailResponse:
         id=lab.id,
         code=lab.code,
         name=lab.name,
+        schedule_button_label=lab.schedule_button_label,
         building=lab.building,
         capacity=lab.capacity,
         is_active=lab.is_active,

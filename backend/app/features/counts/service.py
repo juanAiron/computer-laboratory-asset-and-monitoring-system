@@ -1,13 +1,26 @@
 from datetime import datetime, timezone
+
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.features.assets.models import Asset
-from app.features.counts.models import CountItem, CountItemStatus, CountStatus, InventoryCount
+from app.features.counts.models import (
+    CountItem,
+    CountItemStatus,
+    CountStatus,
+    InventoryCount,
+)
 from app.features.counts.schemas import CountItemOut, CountSessionResponse
 from app.features.labs.models import LabRoom
 from app.features.users.models import User
+
+
+def list_inventory_counts(db: Session) -> list[CountSessionResponse]:
+    counts = db.scalars(
+        select(InventoryCount).order_by(InventoryCount.started_at.desc())
+    ).all()
+    return [_build_count_response(db, count) for count in counts]
 
 
 def _build_count_response(db: Session, count: InventoryCount) -> CountSessionResponse:
@@ -67,6 +80,7 @@ def scan_count_item(db: Session, count_id: int, asset_tag: str) -> CountSessionR
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Asset '{asset_tag}' not found")
 
     now = datetime.now(timezone.utc)
+    asset.last_audited_at = now
     existing_item = db.scalar(
         select(CountItem).where(CountItem.count_id == count.id, CountItem.asset_id == asset.id)
     )

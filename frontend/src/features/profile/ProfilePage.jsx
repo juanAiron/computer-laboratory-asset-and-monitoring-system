@@ -18,6 +18,7 @@ import api from '../../api/client'
 import { useAuth } from '../../hooks/useAuth'
 import { normalizeLanguage, useTranslation } from '../../utils/i18n'
 import { ROLE_LABELS, ROLES } from '../../utils/roles'
+import { getThemePreference } from '../../utils/theme'
 
 const TABS = [
   { id: 'personal', label: 'Personal Info', icon: UserRound },
@@ -52,7 +53,7 @@ export function ProfilePage() {
   const [office, setOffice] = useState(user?.office || '')
   const [profileVisibility, setProfileVisibility] = useState(user?.profile_visibility || 'members')
   const [activityVisibility, setActivityVisibility] = useState(user?.activity_visibility || 'members')
-  const [theme, setTheme] = useState(() => localStorage.getItem('profile_theme') || 'system')
+  const [theme, setTheme] = useState(getThemePreference)
   const [language, setLanguage] = useState(() => normalizeLanguage(localStorage.getItem('profile_language') || 'English'))
   const [defaultView, setDefaultView] = useState(() => localStorage.getItem('profile_default_view') || 'dashboard')
   const [savedTheme, setSavedTheme] = useState(theme)

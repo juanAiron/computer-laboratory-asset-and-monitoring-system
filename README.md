@@ -7,11 +7,15 @@ A Progressive Web Application (PWA) built for **Saint Louis University (SLU)** t
 ## Core Features
 
 * **Asset Management & QR Tagging:** Track PCs, monitors, and lab devices by serial number, condition, status, and exact lab/rack location, with batch-printable QR code labels.
+* **Hardware Inventory Register:** View tag and serial numbers, item descriptions, optional computer specifications, acquisition date and cost, deployed department, last physical check, condition, status, and remarks in a searchable table.
+* **Software & Subscription Inventory:** Track software vendors, versions, license types and seats, deployed devices/users, renewal and expiry dates, and annual costs alongside hardware in the Inventory section.
+* **Inventory Permissions:** Super Admins and custodians can create, edit, and archive hardware, software, and subscriptions; Department Heads and TRIL Advisors have view-only access.
+* **Centralized Lab Room Management:** Super Admins add schedule rooms, which are shared by Lab Schedules and the hardware inventory room dropdown.
 * **Mobile Camera Scanning:** Scan asset QR tags directly from a smartphone browser to view equipment history, check items out, or log issues on the spot.
 * **Check-Out & Return Workflow:** Manage borrowed equipment with due dates, overdue alerts, and database-enforced single-loan rules.
 * **Consumables & Stock Alerts:** Monitor cables, keyboards, mice, and spare parts with movement logs and low-stock thresholds.
 * **Repair & Maintenance Tickets:** Record hardware faults, track repair status, and maintain a full service history per asset.
-* **Inventory Count Mode:** Conduct lab-by-lab physical audits by scanning tags and flagging missing or misplaced items.
+* **Inventory Count Mode:** Conduct lab-by-lab physical audits by scanning tags, flagging missing or misplaced items, and recording the latest physical-check date on each scanned asset.
 * **Role-Based Access Control & SLU Google Sign-In:** Restricts access to pre-registered `@slu.edu.ph` Google Workspace accounts across three roles: **Admin / Department Head**, **Custodian**, and **Borrower**.
 * **Reports & Audit Trail:** Export inventory summaries to Excel (`.xlsx`) and PDF, and record every create, update, and archive action in an audit log.
 
@@ -104,6 +108,12 @@ computer-laboratory-asset-and-monitoring-system/
 │   │   │   │   ├── service.py            # Asset CRUD, QR tag lookup, status transitions, soft-archive
 │   │   │   │   └── router.py             # GET/POST/PATCH /assets, GET /assets/by-tag/{tag}, POST /assets/{id}/archive
 │   │   │   │
+│   │   │   ├── software_assets/          # Software licenses and subscriptions with edit approvals
+│   │   │   │   ├── models.py             # SoftwareAsset and SoftwareEditRequest
+│   │   │   │   ├── schemas.py            # Software inventory and approval request schemas
+│   │   │   │   ├── service.py            # Software CRUD and request review workflow
+│   │   │   │   └── router.py             # /software-assets API
+│   │   │   │
 │   │   │   ├── consumables/              # Non-serialized items (cables, mice, keyboards) & stock log
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── models.py             # Consumable (quantity >= 0, reorder_level), StockMovement
@@ -125,12 +135,12 @@ computer-laboratory-asset-and-monitoring-system/
 │   │   │   │   ├── service.py            # Ticket lifecycle, auto-flags asset/station status when broken/resolved
 │   │   │   │   └── router.py             # GET/POST/PATCH /repairs
 │   │   │   │
-│   │   │   ├── counts/                   # Physical QR inventory audit sessions
+│   │   │   ├── counts/                   # Physical QR inventory audit sessions, shown under Inventory
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── models.py             # InventoryCount, CountItem (expected vs. scanned/misplaced/missing)
 │   │   │   │   ├── schemas.py            # CountStart, CountScanRequest, CountSummaryResponse
 │   │   │   │   ├── service.py            # Initializes lab asset snapshot, records QR scans, reconciles discrepancies
-│   │   │   │   └── router.py             # POST /counts, POST /counts/{id}/scan, POST /counts/{id}/close
+│   │   │   │   └── router.py             # GET/POST /counts, POST /counts/{id}/scan, POST /counts/{id}/close
 │   │   │   │
 │   │   │   └── dashboard/                # Aggregated stats & report downloads
 │   │   │       ├── __init__.py
@@ -205,7 +215,11 @@ computer-laboratory-asset-and-monitoring-system/
 │   │   │   ├── assets/
 │   │   │   │   ├── AssetsListPage.jsx    # Searchable/filterable equipment registry
 │   │   │   │   ├── AssetDetailPage.jsx   # Specs, QR tag preview, loan history, repair logs, archive
-│   │   │   │   └── AssetFormModal.jsx    # Add/edit asset form
+│   │   │   │   ├── AssetFormModal.jsx    # Edit hardware asset / request approval
+│   │   │   │   ├── SoftwareAssetsTab.jsx # Software and subscription inventory
+│   │   │   │   ├── SoftwareAssetFormModal.jsx # Add/edit software / request approval
+│   │   │   ├── counts/
+│   │   │   │   └── InventoryAuditTab.jsx # Physical inventory audits within Inventory
 │   │   │   ├── scan/
 │   │   │   │   └── QuickScanPage.jsx     # Custodian camera scan -> instant check-out, return, or ticket
 │   │   │   ├── loans/

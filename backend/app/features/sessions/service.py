@@ -19,18 +19,6 @@ from app.features.sessions.schemas import (
 from app.features.users.models import User, UserRole
 from app.shared.audit import AuditLog
 
-CLASSROOM_CODES = {
-    "D522",
-    "D524",
-    "D526",
-    "D528",
-    "D422",
-    "D223",
-    "D722",
-    "D723",
-    "D724",
-    "D725",
-}
 CLASS_CODE_PATTERN = re.compile(r"(?:[0-9]{4}[AB]|[0-9]{5})")
 COURSE_NUMBER_PATTERN = re.compile(
     r"(?:(?:IT|CS) [0-9]{3}L?|ITE [0-9]{1,2}L?|CFE [0-9]{3}[A-Z]?|FOR LANG [0-9]+|MMAE [0-9]{1,2}[A-Z]?)"
@@ -60,7 +48,13 @@ def _validated_schedule_values(
     course_name = payload.course_name.strip()
     instructor = db.get(User, payload.instructor_id)
 
-    if room_code not in CLASSROOM_CODES:
+    if not db.scalar(
+        select(LabRoom).where(
+            LabRoom.code == room_code,
+            LabRoom.is_active.is_(True),
+            LabRoom.deactivated_at.is_(None),
+        )
+    ):
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Unknown classroom")
     if not course_name:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Course name is required")

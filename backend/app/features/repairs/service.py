@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -66,7 +67,7 @@ def update_repair_ticket(db: Session, ticket_id: int, payload: RepairUpdate, cus
             asset = db.get(Asset, ticket.asset_id)
             if asset:
                 asset.status = AssetStatus.AVAILABLE
-                asset.condition = AssetCondition.GOOD
+                asset.condition = AssetCondition.WORKING
         if ticket.station_id:
             station = db.get(LabStation, ticket.station_id)
             if station:
@@ -76,6 +77,7 @@ def update_repair_ticket(db: Session, ticket_id: int, payload: RepairUpdate, cus
         asset = db.get(Asset, ticket.asset_id)
         if asset:
             asset.status = AssetStatus.RETIRED
+            asset.condition = AssetCondition.FOR_CONDEMN
             asset.deactivated_at = datetime.now(timezone.utc)
 
     db.commit()

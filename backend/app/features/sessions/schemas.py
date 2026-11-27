@@ -26,7 +26,7 @@ class SessionResponse(BaseModel):
 
 
 class ClassScheduleFields(BaseModel):
-    room_code: str = Field(min_length=1, max_length=10)
+    room_code: str = Field(min_length=4, max_length=10)
     start_time: time
     end_time: time
     instructor_id: int = Field(gt=0)

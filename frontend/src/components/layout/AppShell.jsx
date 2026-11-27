@@ -4,12 +4,14 @@ import { ChevronDown, CircleUserRound, LogOut } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { useTranslation } from '../../utils/i18n'
 import { ROLE_LABELS } from '../../utils/roles'
+import { getThemePreference } from '../../utils/theme'
 import { MobileNav } from './MobileNav'
 import { Sidebar } from './Sidebar'
 
 const PAGE_HEADERS = {
   '/': { title: 'Dashboard', subtitle: 'Live Laboratory Overview' },
   '/sessions': { title: 'Lab Schedules', subtitle: 'Choose a classroom to view its schedule.' },
+  '/assets': { title: 'Inventory', subtitle: 'Manage hardware assets, software, and subscriptions.' },
   '/users': { title: 'Users & Roster', subtitle: 'Manage accounts and system access.' },
   '/profile': { title: 'Profile Settings', subtitle: 'Account information and preferences.' },
 }
@@ -37,7 +39,7 @@ export function AppShell() {
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)')
     const applyTheme = () => {
-      const preference = localStorage.getItem('profile_theme') || 'system'
+      const preference = getThemePreference()
       const resolved =
         preference === 'system' ? (media.matches ? 'dark' : 'light') : preference
       document.documentElement.dataset.theme = resolved

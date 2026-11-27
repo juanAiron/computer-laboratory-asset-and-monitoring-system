@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarDays,
@@ -17,26 +17,6 @@ import { useAuth } from "../../hooks/useAuth";
 import { useTranslation } from "../../utils/i18n";
 import { ROLES } from "../../utils/roles";
 
-const CLASSROOMS = [
-  "D522",
-  "D524",
-  "D526",
-  "D528",
-  "D422",
-  "D223",
-  "D722",
-  "D723",
-  "D724",
-  "D725",
-];
-
-const FLOOR_CATEGORIES = [
-  { id: "2", label: "2nd Floor", roomPrefix: "D2" },
-  { id: "4", label: "4th Floor", roomPrefix: "D4" },
-  { id: "5", label: "5th Floor", roomPrefix: "D5" },
-  { id: "7", label: "7th Floor", roomPrefix: "D7" },
-];
-
 const DAYS = [
   "Monday",
   "Tuesday",
@@ -47,16 +27,37 @@ const DAYS = [
 ];
 const DAY_ABBREVIATIONS = ["M", "T", "W", "Th", "F", "Sa"];
 
-function getRoomFloor(room) {
-  return FLOOR_CATEGORIES.find((floor) =>
-    room.startsWith(floor.roomPrefix),
-  )?.id;
+function getRoomFloor(roomCode) {
+  return roomCode.match(/^D([0-9])/i)?.[1] || null;
+}
+
+function getFloorLabel(floorId) {
+  const floorNumber = Number(floorId);
+  const suffix =
+    floorNumber % 100 >= 11 && floorNumber % 100 <= 13
+      ? "th"
+      : { 1: "st", 2: "nd", 3: "rd" }[floorNumber % 10] || "th";
+  return `${floorNumber}${suffix} Floor`;
+}
+
+function toScheduleRoom(lab) {
+  const baseCode = lab.code.match(/^D[0-9]{3}/i)?.[0] || lab.code;
+  const buttonLabel = lab.schedule_button_label || lab.code;
+  const compactLabel = buttonLabel.length > 8;
+
+  return {
+    code: lab.code,
+    buttonLabel: compactLabel ? buttonLabel.replace(/\s+/g, "\n") : buttonLabel,
+    compactLabel,
+    title:
+      lab.name && lab.name !== baseCode
+        ? `${baseCode} - ${lab.name}`
+        : baseCode,
+  };
 }
 
 const DEFAULT_FLOOR = "5";
-const DEFAULT_ROOM = CLASSROOMS.find(
-  (room) => getRoomFloor(room) === DEFAULT_FLOOR,
-);
+const DEFAULT_ROOM = "D522";
 
 const EMPTY_FORM = {
   days_of_week: [0],
@@ -566,14 +567,22 @@ export function ClassSessionsPage() {
   const queryClient = useQueryClient();
   const canEdit =
     user?.role === ROLES.DEPT_HEAD || user?.role === ROLES.SUPER_ADMIN;
-  const [selectedRoom, setSelectedRoom] = useState(DEFAULT_ROOM);
+  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(DEFAULT_FLOOR);
   const [formOpen, setFormOpen] = useState(false);
+  const [roomFormOpen, setRoomFormOpen] = useState(false);
+  const [newRoom, setNewRoom] = useState({
+    code: "",
+    name: "",
+    schedule_button_label: "",
+  });
   const [editingSchedule, setEditingSchedule] = useState(null);
   const [viewingSchedule, setViewingSchedule] = useState(null);
   const [scheduleToDelete, setScheduleToDelete] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [errorMessage, setErrorMessage] = useState("");
+  const [roomErrorMessage, setRoomErrorMessage] = useState("");
   const [codeFieldsTouched, setCodeFieldsTouched] = useState({
     class_code: false,
     course_number: false,
@@ -592,6 +601,39 @@ export function ClassSessionsPage() {
     queryFn: async () => (await api.get("/sessions/schedules")).data,
     enabled: Boolean(selectedRoom),
   });
+
+  const labsQuery = useQuery({
+    queryKey: ["labs"],
+    queryFn: async () => (await api.get("/labs")).data,
+  });
+  const classrooms = useMemo(
+    () =>
+      (labsQuery.data || [])
+        .filter((lab) => /^D[0-9]{3}/i.test(lab.code))
+        .map(toScheduleRoom),
+    [labsQuery.data],
+  );
+  const floorCategories = useMemo(
+    () =>
+      [...new Set(classrooms.map((room) => getRoomFloor(room.code)).filter(Boolean))]
+        .sort((first, second) => Number(first) - Number(second))
+        .map((id) => ({ id, label: getFloorLabel(id) })),
+    [classrooms],
+  );
+
+  useEffect(() => {
+    if (
+      classrooms.length === 0 ||
+      classrooms.some((room) => room.code === selectedRoom)
+    ) {
+      return;
+    }
+
+    const defaultRoom =
+      classrooms.find((room) => room.code === DEFAULT_ROOM) || classrooms[0];
+    setSelectedRoom(defaultRoom.code);
+    setSelectedFloor(getRoomFloor(defaultRoom.code));
+  }, [classrooms, selectedRoom]);
 
   const instructorsQuery = useQuery({
     queryKey: ["active-instructors"],
@@ -633,6 +675,30 @@ export function ClassSessionsPage() {
     },
   });
 
+  const addRoomMutation = useMutation({
+    mutationFn: async (room) => api.post("/labs", room),
+    onSuccess: async ({ data: room }) => {
+      await queryClient.invalidateQueries({ queryKey: ["labs"] });
+      setSelectedRoom(room.code);
+      setSelectedFloor(getRoomFloor(room.code));
+      setRoomFormOpen(false);
+      setNewRoom({ code: "", name: "", schedule_button_label: "" });
+      setRoomErrorMessage("");
+    },
+    onError: (error) => {
+      setRoomErrorMessage(getErrorMessage(error, t("Unable to add room.")));
+    },
+  });
+
+  const handleAddRoom = (event) => {
+    event.preventDefault();
+    addRoomMutation.mutate({
+      code: newRoom.code.trim().toUpperCase(),
+      name: newRoom.name.trim(),
+      schedule_button_label: newRoom.schedule_button_label.trim() || null,
+    });
+  };
+
   const handleSelectRoom = (room) => {
     setSelectedRoom(room);
     if (room) setSelectedFloor(getRoomFloor(room));
@@ -643,15 +709,12 @@ export function ClassSessionsPage() {
   };
 
   const handleSelectFloor = (floorId) => {
-    const nextFloor = selectedFloor === floorId ? null : floorId;
-    setSelectedFloor(nextFloor);
-    if (nextFloor) {
-      const firstRoomOnFloor = CLASSROOMS.find(
-        (room) => getRoomFloor(room) === nextFloor,
-      );
-      if (firstRoomOnFloor && firstRoomOnFloor !== selectedRoom) {
-        handleSelectRoom(firstRoomOnFloor);
-      }
+    setSelectedFloor(floorId);
+    const firstRoomOnFloor = classrooms.find(
+      (room) => getRoomFloor(room.code) === floorId,
+    );
+    if (firstRoomOnFloor && firstRoomOnFloor.code !== selectedRoom) {
+      handleSelectRoom(firstRoomOnFloor.code);
     }
   };
 
@@ -752,8 +815,8 @@ export function ClassSessionsPage() {
   const roomSchedules = (schedulesQuery.data || []).filter(
     (schedule) => schedule.room_code === selectedRoom,
   );
-  const visibleClassrooms = CLASSROOMS.filter(
-    (room) => !selectedFloor || getRoomFloor(room) === selectedFloor,
+  const visibleClassrooms = classrooms.filter(
+    (room) => !selectedFloor || getRoomFloor(room.code) === selectedFloor,
   );
   const earliestSchedule = roomSchedules.length
     ? Math.min(
@@ -818,12 +881,104 @@ export function ClassSessionsPage() {
     <div>
       <div className="sticky top-0 z-30 -mx-4 px-4 py-2 md:-mx-8 md:px-8">
         <div className="mx-auto w-fit max-w-full rounded-xl bg-white px-3 py-2">
+          {isSuperAdmin && (
+            <div className="mb-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setRoomFormOpen((isOpen) => !isOpen);
+                  setRoomErrorMessage("");
+                }}
+                className="rounded-lg bg-hunter-green px-3 py-1.5 text-xs font-semibold text-white hover:bg-evergreen"
+              >
+                {roomFormOpen ? t("Cancel") : t("Add room")}
+              </button>
+            </div>
+          )}
+          {isSuperAdmin && roomFormOpen && (
+            <form
+              onSubmit={handleAddRoom}
+              className="mb-3 grid gap-2 rounded-lg border border-palm-leaf/20 bg-cornsilk/40 p-3 sm:grid-cols-2"
+            >
+              <label className="text-xs font-semibold text-evergreen">
+                {t("Room code")}
+                <input
+                  value={newRoom.code}
+                  onChange={(event) =>
+                    setNewRoom((current) => ({
+                      ...current,
+                      code: event.target.value.toUpperCase(),
+                    }))
+                  }
+                  pattern="D[0-9]{3}(-[A-Z0-9]{1,6})?"
+                  maxLength={10}
+                  placeholder="D429"
+                  required
+                  className="mt-1 w-full rounded-lg border border-palm-leaf/40 bg-white px-3 py-2 text-sm text-evergreen"
+                />
+              </label>
+              <label className="text-xs font-semibold text-evergreen">
+                {t("Room name")}
+                <input
+                  value={newRoom.name}
+                  onChange={(event) =>
+                    setNewRoom((current) => ({
+                      ...current,
+                      name: event.target.value,
+                    }))
+                  }
+                  maxLength={100}
+                  required
+                  className="mt-1 w-full rounded-lg border border-palm-leaf/40 bg-white px-3 py-2 text-sm text-evergreen"
+                />
+              </label>
+              <label className="text-xs font-semibold text-evergreen sm:col-span-2">
+                {t("Button label")} ({t("optional")})
+                <input
+                  value={newRoom.schedule_button_label}
+                  onChange={(event) =>
+                    setNewRoom((current) => ({
+                      ...current,
+                      schedule_button_label: event.target.value,
+                    }))
+                  }
+                  maxLength={100}
+                  placeholder={newRoom.code || t("Defaults to room code")}
+                  className="mt-1 w-full rounded-lg border border-palm-leaf/40 bg-white px-3 py-2 text-sm text-evergreen"
+                />
+              </label>
+              {roomErrorMessage && (
+                <p role="alert" className="text-sm text-red-700 sm:col-span-2">
+                  {t(roomErrorMessage)}
+                </p>
+              )}
+              <div className="flex justify-end gap-2 sm:col-span-2">
+                <button
+                  type="submit"
+                  disabled={addRoomMutation.isPending}
+                  className="rounded-lg bg-hunter-green px-3 py-1.5 text-xs font-semibold text-white hover:bg-evergreen disabled:opacity-60"
+                >
+                  {addRoomMutation.isPending ? t("Saving…") : t("Save room")}
+                </button>
+              </div>
+            </form>
+          )}
+          {labsQuery.isError && (
+            <p role="alert" className="mb-2 text-sm text-red-700">
+              {t("Unable to load rooms.")}
+            </p>
+          )}
+          {!labsQuery.isLoading && !labsQuery.isError && classrooms.length === 0 && (
+            <p role="status" className="mb-2 text-sm text-hunter-green">
+              {t("No schedule rooms have been added yet.")}
+            </p>
+          )}
           <section
             aria-label={t("Filter classrooms by floor")}
             className="mb-2 flex max-w-full overflow-x-auto pb-1"
           >
             <div className="mx-auto flex w-max flex-nowrap gap-1 rounded-lg border border-palm-leaf/30 bg-white p-1">
-              {FLOOR_CATEGORIES.map((floor) => (
+              {floorCategories.map((floor) => (
                 <button
                   key={floor.id}
                   type="button"
@@ -842,17 +997,17 @@ export function ClassSessionsPage() {
           >
             <div className="mx-auto flex w-max flex-nowrap gap-3">
               {visibleClassrooms.map((room) => {
-                const isSelected = selectedRoom === room;
+                const isSelected = selectedRoom === room.code;
 
                 return (
                   <button
-                    key={room}
+                    key={room.code}
                     type="button"
                     aria-pressed={isSelected}
-                    onClick={() => handleSelectRoom(room)}
-                    className="raised-theme-button room-selector-btn"
+                    onClick={() => handleSelectRoom(room.code)}
+                    className={`raised-theme-button room-selector-btn${room.compactLabel ? " room-selector-btn--compact" : ""}`}
                   >
-                    {room}
+                    {room.buttonLabel}
                   </button>
                 );
               })}
@@ -873,7 +1028,7 @@ export function ClassSessionsPage() {
                   <CalendarDays className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <h2 className="text-lg font-semibold text-evergreen">
-                  {selectedRoom}
+                  {classrooms.find((room) => room.code === selectedRoom)?.title || selectedRoom}
                 </h2>
               </div>
               {canEdit && (
@@ -1423,7 +1578,8 @@ export function ClassSessionsPage() {
                   {t("Room")}
                 </dt>
                 <dd className="mt-1 font-semibold text-evergreen">
-                  {viewingSchedule.room_code}
+                  {classrooms.find((room) => room.code === viewingSchedule.room_code)?.title ||
+                    viewingSchedule.room_code}
                 </dd>
               </div>
               <div>

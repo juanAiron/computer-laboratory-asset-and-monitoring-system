@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -13,6 +14,7 @@ from app.features.dashboard.router import router as dashboard_router
 from app.features.labs.router import router as labs_router
 from app.features.repairs.router import router as repairs_router
 from app.features.sessions.router import router as sessions_router
+from app.features.software_assets.router import router as software_assets_router
 from app.features.users.router import router as users_router
 
 Path("uploads/assets").mkdir(parents=True, exist_ok=True)
@@ -46,6 +48,7 @@ app.include_router(users_router, prefix="/api/v1")
 app.include_router(labs_router, prefix="/api/v1")
 app.include_router(sessions_router, prefix="/api/v1")
 app.include_router(assets_router, prefix="/api/v1")
+app.include_router(software_assets_router, prefix="/api/v1")
 app.include_router(borrow_router, prefix="/api/v1")
 app.include_router(consumables_router, prefix="/api/v1")
 app.include_router(repairs_router, prefix="/api/v1")
